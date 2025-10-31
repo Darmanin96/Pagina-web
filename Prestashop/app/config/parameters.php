@@ -1,0 +1,25 @@
+<?php return array (
+  'parameters' => 
+  array (
+    'database_host' => '127.0.0.1',
+    'database_port' => '',
+    'database_name' => 'ps_proyecto',
+    'database_user' => 'root',
+    'database_password' => '',
+    'database_prefix' => 'ps_',
+    'database_engine' => 'InnoDB',
+    'mailer_transport' => 'smtp',
+    'mailer_host' => '127.0.0.1',
+    'mailer_user' => NULL,
+    'mailer_password' => NULL,
+    'secret' => '89XrdB3jxK9TdQwsrSVuSZCaczTLVYf5AG5kwmB1QFfIRqEQCppusRV6oLSphMpC',
+    'ps_caching' => 'CacheMemcache',
+    'ps_cache_enable' => false,
+    'ps_creation_date' => '2025-10-31',
+    'locale' => 'es-ES',
+    'use_debug_toolbar' => true,
+    'cookie_key' => 'G4f6TcoSPCYcFKdBOYCTZCY3uIvJnpO6n8BaMHzLTRMQEoyGsZtQ9huqLenoPpPm',
+    'cookie_iv' => 'XfG8FP5Jp7s8Bhe9qBCyRS6KsaKY4ZUp',
+    'new_cookie_key' => 'def000002cd5e898c4f9113259bb564a0895f282725294fdf8c0f26ca2c34c70eeb47c31940e259472642775ee40ce93eb54ed2e5cedf622a7e5e040cc7020afe16d53cc',
+  ),
+);
