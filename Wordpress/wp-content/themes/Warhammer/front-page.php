@@ -9,52 +9,60 @@
     <p>Donde las leyendas del Imperio cobran vida.</p>
   </div>
 </section>
-
 <main class="main-content">
   <section class="facciones">
     <h2>Facciones del Imperio</h2>
     <div class="facciones-grid">
 
       <article class="faccion faccion-image">
-  <img src="<?php echo get_template_directory_uri(); ?>/assets/img/astra2.webp" alt="Astra Militarum">
-  <div class="faccion-overlay">
-    <h3>Astra Militarum</h3>
-    <p>El corazón del Imperio, compuesto por millones de soldados humanos que luchan con valentía contra las amenazas del universo.</p>
-  </div>
-</article>
-
-
-      <article class="faccion">
-        <h3>Space Marines</h3>
-        <p>Los guerreros genéticamente mejorados del Imperio, conocidos por su fuerza y habilidades de combate superiores.</p>
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/astra2.webp" alt="Astra Militarum">
+        <div class="faccion-overlay">
+          <h3>Astra Militarum</h3>
+          <p>El corazón del Imperio, compuesto por millones de soldados humanos que luchan con valentía contra las amenazas del universo.</p>
+        </div>
       </article>
 
-     <article class="faccion faccion-image">
-  <img src="<?php echo get_template_directory_uri(); ?>/assets/img/adeptus.webp" alt="Adeptus Mechanicus">
-  <div class="faccion-overlay">
-    <h3>Adeptus Mechanicus</h3>
-    <p>Los guardianes del conocimiento tecnológico, dedicados a preservar y desarrollar la tecnología del Imperio.</p>
-  </div>
-</article>
-
-
-
-      <article class="faccion">
-        <h3>La Inquisición</h3>
-        <p>Una organización secreta que protege al Imperio de amenazas internas y externas, utilizando métodos implacables para asegurar la supervivencia de la humanidad.</p>
+      <article class="faccion faccion-image">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/marine.png" alt="Space Marines">
+        <div class="faccion-overlay">
+          <h3>Space Marines</h3>
+          <p>Los guerreros genéticamente mejorados del Imperio, conocidos por su fuerza y habilidades de combate superiores.</p>
+        </div>
       </article>
 
-      <article class="faccion">
-        <h3>Adeptus Sororitas</h3>
-        <p>También conocidas como las Hermanas de Batalla, son una orden militar religiosa dedicada a la defensa del Imperio y la erradicación de la herejía.</p>
+      <article class="faccion faccion-image">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/adeptus.webp" alt="Adeptus Mechanicus">
+        <div class="faccion-overlay">
+          <h3>Adeptus Mechanicus</h3>
+          <p>Los guardianes del conocimiento tecnológico, dedicados a preservar y desarrollar la tecnología del Imperio.</p>
+        </div>
       </article>
 
-      <article class="faccion">
-        <h3>Officio Assassinorum</h3>
-        <p>Una organización secreta que emplea asesinos altamente entrenados para eliminar amenazas críticas al Imperio.</p>
+      <article class="faccion faccion-image">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/inqui.jpg" alt="Inquisición">
+        <div class="faccion-overlay">
+          <h3>La Inquisición</h3>
+          <p>Una organización secreta que protege al Imperio de amenazas internas y externas, utilizando métodos implacables para asegurar la supervivencia de la humanidad.</p>
+        </div>
       </article>
+
+      <article class="faccion faccion-image">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/monga.png" alt="Adeptus Sororitas">
+        <div class="faccion-overlay">
+          <h3>Adeptus Sororitas</h3>
+          <p>También conocidas como las Hermanas de Batalla, son una orden militar religiosa dedicada a la defensa del Imperio y la erradicación de la herejía.</p>
+        </div>
+      </article>
+
+      <article class="faccion faccion-image">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/oficio.webp" alt="Officio Assassinorum">
+        <div class="faccion-overlay">
+          <h3>Officio Assassinorum</h3>
+          <p>Una organización secreta que emplea asesinos altamente entrenados para eliminar amenazas críticas al Imperio.</p>
+        </div>
+      </article>
+
     </div>
   </section>
 </main>
-
 <?php get_footer(); ?>
