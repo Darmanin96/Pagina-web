@@ -14,20 +14,30 @@
   <section class="facciones">
     <h2>Facciones del Imperio</h2>
     <div class="facciones-grid">
-      <article class="faccion">
-        <h3>Astra Militarum</h3>
-        <p>El corazón del Imperio, compuesto por millones de soldados humanos que luchan con valentía contra las amenazas del universo.</p>
-      </article>
+
+      <article class="faccion faccion-image">
+  <img src="<?php echo get_template_directory_uri(); ?>/assets/img/astra2.webp" alt="Astra Militarum">
+  <div class="faccion-overlay">
+    <h3>Astra Militarum</h3>
+    <p>El corazón del Imperio, compuesto por millones de soldados humanos que luchan con valentía contra las amenazas del universo.</p>
+  </div>
+</article>
+
 
       <article class="faccion">
         <h3>Space Marines</h3>
         <p>Los guerreros genéticamente mejorados del Imperio, conocidos por su fuerza y habilidades de combate superiores.</p>
       </article>
 
-      <article class="faccion">
-        <h3>Adeptus Mechanicus</h3>
-        <p>Los guardianes del conocimiento tecnológico, dedicados a preservar y desarrollar la tecnología del Imperio.</p>
-      </article>
+     <article class="faccion faccion-image">
+  <img src="<?php echo get_template_directory_uri(); ?>/assets/img/adeptus.webp" alt="Adeptus Mechanicus">
+  <div class="faccion-overlay">
+    <h3>Adeptus Mechanicus</h3>
+    <p>Los guardianes del conocimiento tecnológico, dedicados a preservar y desarrollar la tecnología del Imperio.</p>
+  </div>
+</article>
+
+
 
       <article class="faccion">
         <h3>La Inquisición</h3>
