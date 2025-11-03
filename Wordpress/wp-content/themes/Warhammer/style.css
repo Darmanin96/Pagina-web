@@ -3,6 +3,67 @@ header {
   z-index: 10;
 }
 
+
+.faccion-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  padding: 20px;
+  color: #d4af37;
+}
+
+.faccion-overlay h3 {
+  margin: 0 0 10px;
+  font-size: 1.8rem;
+  color: #ffd700;
+}
+
+.faccion-overlay p {
+  font-size: 1rem;
+  color: #f5deb3;
+}
+
+.faccion-image:hover img {
+  transform: scale(1.1);
+  filter: brightness(0.5);
+}
+
+.faccion-image:hover .faccion-overlay {
+  opacity: 1;
+}
+
+
+.faccion-image {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1 / 1; 
+  border: 1px solid #8b0000;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #000;
+}
+
+.faccion-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.4s ease, filter 0.3s ease;
+}
+
+
 header nav {
   position: fixed;
   top: 0;
@@ -69,6 +130,8 @@ body {
   overflow: hidden;
 }
 
+
+
 #warhammer-40k video {
   width: 100%;
   height: 100%;
@@ -88,15 +151,20 @@ body {
 }
 
 .hero-content h1 {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  font-family: 'Cinzel', serif;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+  font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 4rem;
+    color: #8b4513;
+    text-shadow: 1px 1px 2px black;
+    margin: 0;
+    text-align: center;
 }
 
 .hero-content p {
-  font-size: 1.5rem;
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: #d2b48c;
+    margin-top: 0.5rem;
+    text-align: center;
 }
 
 .main-content {
@@ -123,8 +191,10 @@ body {
 
 .facciones-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 100px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .faccion {
@@ -179,9 +249,20 @@ body {
   text-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
 }
 
+#adeptus-mechanicus{
+	width: 100%;
+	
+	
+}
 @keyframes fadeIn {
   from { opacity: 0; transform: translate(-50%, -45%); }
   to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@media (max-width: 1024px) {
+  .facciones-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -206,6 +287,10 @@ body {
 
   .main-content {
     padding: 40px 15px;
+  }
+  
+  .facciones-grid {
+    grid-template-columns: 1fr;
   }
 }
 

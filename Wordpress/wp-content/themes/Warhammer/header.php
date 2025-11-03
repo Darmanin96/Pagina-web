@@ -8,7 +8,7 @@
 <body <?php body_class(); ?>>
     <header>
         <nav>
-            <?php wp_nav_menu(array('theme_location' => 'menu-principal')); ?>
+            <?php wp_nav_menu(array('theme_location' => 'menu-principal', 'menu_id' => 'menu-menu-principal')); ?>
         </nav>
     </header>
         

@@ -36,7 +36,12 @@ function fronts_google(){
      wp_enqueue_style('warhammer-google-fonts', 'https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@700&display=swap', array(), null);
 }
 
+function estilos_personalizados() {
+    wp_enqueue_style('warhammer-estilos', get_stylesheet_uri());
+}
+
 add_action('after_setup_theme', 'warhammer_setup');
 add_action('wp_footer', 'video_scroll');
 add_action('wp_enqueue_scripts', 'fronts_google');
+add_action('wp_enqueue_scripts', 'estilos_personalizados');
 ?>
