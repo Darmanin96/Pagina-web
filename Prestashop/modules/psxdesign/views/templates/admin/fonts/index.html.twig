@@ -26,6 +26,7 @@
 {% extends '@PrestaShop/Admin/layout.html.twig' %}
 
 {% block content %}
+    {% include '@Modules/psxdesign/views/templates/components/alert_eol.html.twig' %}
     <div class="container position-relative">
         {% if not fontFeatureAvailability %}
             {% include '@Modules/psxdesign/views/templates/admin/fonts/Blocks/Gateway/font_feature_disabled_gateway.html.twig' %}

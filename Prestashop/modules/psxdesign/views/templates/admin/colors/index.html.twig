@@ -28,6 +28,7 @@
 {% set formId = 'current_color_palette' %}
 
 {% block content %}
+  {% include '@Modules/psxdesign/views/templates/components/alert_eol.html.twig' %}
   <div class="container position-relative">
     {% if not isColorFeatureEnabled %}
         {% include '@Modules/psxdesign/views/templates/admin/colors/Blocks/Gateway/color_feature_disabled_gateway.html.twig' %}

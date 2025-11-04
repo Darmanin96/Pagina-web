@@ -39,7 +39,4 @@ class PsxDesignApiException extends PsxDesignException
      */
     /** Failed to fetch font from API */
     public const FAILED_FETCH_FONT = 201;
-
-    /** Failed to send data to segment */
-    public const FAILED_TO_SEND_DATA_TO_SEGMENT = 202;
 }

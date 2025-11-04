@@ -88,9 +88,9 @@ function transferDataToNewDatabaseTable_1_3_0(): bool
     $oldData = $db->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'psxdesign_color_palette` WHERE `name` = "Theme colors"');
 
     return $db->execute('INSERT INTO `' . _DB_PREFIX_ . 'psxdesign_colors_palette` (`name`, `active`, `default`, `theme`) VALUES ("Theme colors", 1, 0, "classic")') &&
-        $db->execute('INSERT INTO `' . _DB_PREFIX_ . 'psxdesign_color` (`variable_name`, `variable_type`, `value`, `id_palette`) VALUES ("$brand-primary", "scss_variable", "' . $oldData['primary'] . '", ' . pSQL(1) . ')') &&
-        $db->execute('INSERT INTO `' . _DB_PREFIX_ . 'psxdesign_color` (`variable_name`, `variable_type`, `value`, `id_palette`) VALUES ("$brand-secondary", "scss_variable", "' . $oldData['secondary'] . '", ' . pSQL(1) . ')') &&
-        $db->execute('INSERT INTO `' . _DB_PREFIX_ . 'psxdesign_color` (`variable_name`, `variable_type`, `value`, `id_palette`) VALUES ("$gray-darker", "scss_variable", "' . $oldData['text'] . '", ' . pSQL(1) . ')');
+        $db->execute('INSERT INTO `' . _DB_PREFIX_ . 'psxdesign_color` (`variable_name`, `variable_type`, `value`, `id_palette`) VALUES ("$brand-primary", "scss_variable", "' . $oldData['primary'] . '", ' . pSQL('1') . ')') &&
+        $db->execute('INSERT INTO `' . _DB_PREFIX_ . 'psxdesign_color` (`variable_name`, `variable_type`, `value`, `id_palette`) VALUES ("$brand-secondary", "scss_variable", "' . $oldData['secondary'] . '", ' . pSQL('1') . ')') &&
+        $db->execute('INSERT INTO `' . _DB_PREFIX_ . 'psxdesign_color` (`variable_name`, `variable_type`, `value`, `id_palette`) VALUES ("$gray-darker", "scss_variable", "' . $oldData['text'] . '", ' . pSQL('1') . ')');
 }
 
 function dropOldPaletteTable_1_3_0(): bool

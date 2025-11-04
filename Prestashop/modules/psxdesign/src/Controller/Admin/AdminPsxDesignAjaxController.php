@@ -52,7 +52,10 @@ class AdminPsxDesignAjaxController extends FrameworkBundleAdminController
 
     public function __construct(TokenDecoder $decoder, PsAccountDataProvider $accountDataProvider)
     {
-        parent::__construct();
+        if (version_compare(_PS_VERSION_, '9.0.0', '<')) {
+            parent::__construct();
+        }
+
         $this->decoder = $decoder;
         $this->accountDataProvider = $accountDataProvider;
     }

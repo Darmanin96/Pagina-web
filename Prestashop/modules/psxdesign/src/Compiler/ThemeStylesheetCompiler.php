@@ -114,7 +114,6 @@ class ThemeStylesheetCompiler
      * @return CompilationResult Compiled CSS
      *
      * @throws PsxDesignCompilerException
-     * @throws CompilerException
      */
 
     // TODO : geré le cas du RTL (a voir)

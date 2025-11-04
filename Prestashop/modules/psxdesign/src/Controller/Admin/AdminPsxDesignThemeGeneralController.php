@@ -43,22 +43,33 @@ use PrestaShop\Module\PsxDesign\Traits\UpgradeNotification\UpgradeNotificationTr
 use PrestaShop\PrestaShop\Core\Addon\Theme\Exception\ThemeUploadException;
 use PrestaShop\PrestaShop\Core\Addon\Theme\Theme;
 use PrestaShop\PrestaShop\Core\Addon\Theme\ThemeRepository;
+use PrestaShop\PrestaShop\Core\Domain\Theme\Command\DeleteThemeCommand;
+use PrestaShop\PrestaShop\Core\Domain\Theme\Command\EnableThemeCommand;
 use PrestaShop\PrestaShop\Core\Domain\Theme\Exception\ImportedThemeAlreadyExistsException;
 use PrestaShop\PrestaShop\Core\Domain\Theme\Exception\NotSupportedThemeImportSourceException;
 use PrestaShop\PrestaShop\Core\Domain\Theme\Exception\ThemeConstraintException;
+use PrestaShop\PrestaShop\Core\Domain\Theme\Exception\ThemeException;
 use PrestaShop\PrestaShop\Core\Domain\Theme\ValueObject\ThemeImportSource;
-use PrestaShopBundle\Controller\Admin\Improve\Design\ThemeController;
+use PrestaShop\PrestaShop\Core\Domain\Theme\ValueObject\ThemeName;
+use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Security\Annotation\AdminSecurity;
-use PrestaShopBundle\Security\Annotation\DemoRestricted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 use Tools;
 
-class AdminPsxDesignThemeGeneralController extends ThemeController
+class AdminPsxDesignThemeGeneralController extends FrameworkBundleAdminController
 {
     use UpgradeNotificationTrait;
+
+    /** @var ThemeRepository */
+    private $themeRepository;
+
+    public function __construct(ThemeRepository $themeRepository)
+    {
+        $this->themeRepository = $themeRepository;
+    }
 
     /**
      * Show main themes page.
@@ -72,14 +83,13 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
      *
      * @return Response
      */
-    public function indexAction(Request $request): Response
+    public function displayPage(Request $request): Response
     {
         try {
             $this->showUpgradeNotification();
         } catch (Exception $exception) {
             // Avoid fatal errors on ServiceNotFoundException
         }
-
         $themeProvider = $this->get('prestashop.module.psxdesign.provider.theme_attributes_provider');
 
         return $this->render('@Modules/psxdesign/views/templates/admin/themes/index.html.twig', [
@@ -99,7 +109,6 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
      * redirectRoute="admin_psxdesign_themes_index",
      * message="You do not have permission to add this."
      * )
-     * @DemoRestricted(redirectRoute="admin_psxdesign_themes_index")
      *
      * @param Request $request
      *
@@ -121,7 +130,6 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
             // File uploaded we want to remove this variable as getting service with file request fails
             $_FILES = [];
 
-            $this->get('prestashop.module.psxdesign.tracker.segment')->track('Theme Installed', ['theme_name' => $importedTheme->getName(), 'entry_point' => $request->get('action')], $request->server);
             $this->addFlash('psxdesign-success', $template->getContent());
 
             return $this->json(['message' => $this->trans('Theme imported successfully', 'Modules.Psxdesign.Admin')]);
@@ -136,7 +144,11 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
     /**
      * Enable selected theme.
      *
-     * @DemoRestricted(redirectRoute="admin_psxdesign_themes_index")
+     * @AdminSecurity(
+     * "is_granted('update', request.get('_legacy_controller'))",
+     * redirectRoute="admin_psxdesign_themes_index",
+     * message="You do not have permission to delete this."
+     * )
      *
      * @param string $themeName
      *
@@ -159,15 +171,25 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
             }
         }
 
-        parent::enableAction($themeName);
+        try {
+            $this->dispatchCommand(new EnableThemeCommand(new ThemeName($themeName)));
+        } catch (ThemeException $e) {
+            $this->addFlash(
+                'error',
+                $this->trans('The theme can not be enabled cause of internal error: %s', 'Modules.Psxdesign.Admin', [$e])
+            );
 
-        /** @var ThemeRepository $themeRepository */
-        $themeRepository = $this->get('prestashop.core.addon.theme.repository');
+            return $this->redirectToRoute('admin_psxdesign_themes_index');
+        }
 
         /** @var Theme $theme */
-        $theme = $themeRepository->getInstanceByName($themeName);
+        $theme = $this->themeRepository->getInstanceByName($themeName);
 
-        $flashBag = $this->container->get('session')->getFlashBag();
+        if (version_compare(_PS_VERSION_, '9.0.0', '<')) {
+            $flashBag = $this->container->get('session')->getFlashBag();
+        } else {
+            $flashBag = $this->container->get('request_stack')->getSession()->getFlashBag();
+        }
 
         if ($flashBag->has('success')) {
             $flashBag->set('success', $this->trans('The theme %theme% has been set as active theme.', 'Modules.Psxdesign.Admin', ['%theme%' => $theme->get('display_name')]));
@@ -184,8 +206,6 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
             'PrestaShop\Module\PsxDesign\Controller\Admin\AdminPsxDesignColorsController::updateColorsStylesheetsAction'
         );
 
-        $this->get('prestashop.module.psxdesign.tracker.segment')->track('Theme Activated', ['theme_name' => $themeName, 'native_edition_theme' => $this->isNativeEditionTheme($themeName)]);
-
         return $this->redirectToRoute('admin_psxdesign_themes_index');
     }
 
@@ -197,7 +217,6 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
      *     redirectRoute="admin_psxdesign_themes_index",
      *     message="You do not have permission to delete this."
      * )
-     * @DemoRestricted(redirectRoute="admin_psxdesign_themes_index")
      *
      * @param string $themeName
      *
@@ -215,18 +234,26 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
         if ($themeName === 'classic') {
             $this->addFlash('error', $this->trans('The theme %theme% cannot be deleted because it\'s the default Prestashop theme.', 'Modules.Psxdesign.Admin', ['%theme%' => $themeDisplayName]));
 
-            return $this->redirectToRoute('admin_themes_index');
+            return $this->redirectToRoute('admin_psxdesign_themes_index');
         }
 
-        parent::deleteAction($themeName);
+        try {
+            $this->dispatchCommand(new DeleteThemeCommand(new ThemeName($themeName)));
+        } catch (ThemeException $e) {
+            $this->addFlash('error', $this->trans('The theme %theme% cannot be deleted cause of internal error.', 'Modules.Psxdesign.Admin', ['%theme%' => $themeDisplayName]));
 
-        $flashBag = $this->container->get('session')->getFlashBag();
+            return $this->redirectToRoute('admin_psxdesign_themes_index');
+        }
+
+        if (version_compare(_PS_VERSION_, '9.0.0', '<')) {
+            $flashBag = $this->container->get('session')->getFlashBag();
+        } else {
+            $flashBag = $this->container->get('request_stack')->getSession()->getFlashBag();
+        }
 
         if ($flashBag->has('success')) {
             $flashBag->set('success', $this->trans('The theme %themeName% has been deleted.', 'Modules.Psxdesign.Admin', ['%themeName%' => $themeDisplayName]));
         }
-
-        $this->get('prestashop.module.psxdesign.tracker.segment')->track('Theme Deleted', ['theme_name' => $themeName, 'native_edition_theme' => $this->isNativeEditionTheme($themeName)]);
 
         return $this->redirectToRoute('admin_psxdesign_themes_index');
     }
@@ -352,14 +379,12 @@ class AdminPsxDesignThemeGeneralController extends ThemeController
     }
 
     /**
-     * @param string $themeName
+     * Get commands bus to execute command.
      *
-     * @return bool
+     * @param EnableThemeCommand|DeleteThemeCommand $command
      */
-    private function isNativeEditionTheme(string $themeName): bool
+    protected function dispatchCommand($command)
     {
-        $nativeThemeNamesMap = ['classic'];
-
-        return in_array($themeName, $nativeThemeNamesMap);
+        return $this->get('prestashop.core.command_bus')->handle($command);
     }
 }

@@ -99,7 +99,6 @@ class AdminPsxDesignFontsController extends FrameworkBundleAdminController
         try {
             $upsertedFonts = $this->get('prestashop.module.psxdesign.handler.font_upsert_handler')->upsertFonts($fonts);
             $fontTypes = $fontsProvider->getUpdatedFontsCategoriesTitles($previousFonts, $upsertedFonts);
-            $this->get('prestashop.module.psxdesign.tracker.segment')->track('Font Updated', ['font_type' => $fontTypes], $request->server);
 
             $this->addFlash('success', $this->trans('Changes have been saved.', 'Modules.Psxdesign.Admin'));
         } catch (Throwable $e) {

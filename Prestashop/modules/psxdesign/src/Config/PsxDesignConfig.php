@@ -34,9 +34,6 @@ if (!defined('_PS_VERSION_')) {
 
 class PsxDesignConfig
 {
-    // General offten needed values
-    public const CLASSIC_THEME_NAME = 'classic';
-
     // Generated stylesheet files path and file names
     public const TMP_DIR_NAME = 'tmp';
     public const CUSTOM_STYLESHEETS_PATH = 'views/assets/customs/';

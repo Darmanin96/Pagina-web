@@ -150,8 +150,6 @@ class PsxDesignLogoTextData
 
     /**
      * @param int $size
-     *
-     * @throws PsxDesignLogoImportException
      */
     private function setSize(int $size): void
     {

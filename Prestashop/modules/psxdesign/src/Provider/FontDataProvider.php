@@ -32,12 +32,11 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use PrestaShop\Module\PsxDesign\Config\PsxDesignConfig;
 use PrestaShop\Module\PsxDesign\DTO\ThemeConfiguration\Font\PsxDesignFontConfiguration;
 use PrestaShop\Module\PsxDesign\Exception\PsxDesignApiException;
 use PrestaShop\Module\PsxDesign\Exception\PsxDesignTextToImageConvertException;
+use PrestaShop\Module\PsxDesign\Http\HttpClient;
 use PrestaShop\Module\PsxDesign\Utility\DirectoryUtility;
 use PrestaShop\Module\PsxDesign\VO\Font\FontStyle;
 use PrestaShop\Module\PsxDesign\VO\Logo\LogoTextStyle;
@@ -51,7 +50,7 @@ class FontDataProvider
     public const TEMPORARY_FONT_NAME = 'tmpFont.ttf';
 
     /**
-     * @var Client
+     * @var HttpClient
      */
     private $httpClient;
 
@@ -61,7 +60,7 @@ class FontDataProvider
     private $modulePath;
 
     public function __construct(
-        Client $httpClient,
+        HttpClient $httpClient,
         string $modulePath
     ) {
         $this->httpClient = $httpClient;
@@ -82,13 +81,13 @@ class FontDataProvider
     public function getFontContent(string $fontFamily, string $fontText, LogoTextStyle $fontStyle): string
     {
         try {
-            $response = $this->httpClient->get(
+            $response = $this->httpClient->request('GET',
                 self::BASE_URL .
                 'family=' . $fontFamily .
                 ':' . $fontStyle->formatStyleForApiCall() .
                 '&text=' . $fontText
             );
-        } catch (GuzzleException $e) {
+        } catch (RuntimeException $e) {
             throw new PsxDesignApiException($e->getMessage(), PsxDesignApiException::FAILED_FETCH_FONT);
         }
 
@@ -96,7 +95,7 @@ class FontDataProvider
             throw new PsxDesignApiException('Failed to fetch font from google apis', PsxDesignApiException::FAILED_FETCH_FONT);
         }
 
-        return $response->getBody()->getContents();
+        return $response->getBody();
     }
 
     /**
@@ -150,8 +149,8 @@ class FontDataProvider
     public function validateUrl(string $url): void
     {
         try {
-            $response = $this->httpClient->get($url);
-        } catch (GuzzleException $e) {
+            $response = $this->httpClient->request('GET', $url);
+        } catch (RuntimeException $e) {
             throw new PsxDesignApiException($e->getMessage(), PsxDesignApiException::FAILED_FETCH_FONT);
         }
 
@@ -167,21 +166,13 @@ class FontDataProvider
      */
     public function buildFontUrl(array $fonts): string
     {
-        $url = '';
-        $counter = 0;
+        $families = [];
 
         foreach ($fonts as $font) {
-            if ($counter !== 0) {
-                $url .= '&';
-            }
-
             $fontStyle = new FontStyle($font->getStyle());
-            ++$counter;
-
-            $url .= 'family=' . $font->getFont() .
-                ':' . $fontStyle->formatStyleUrl();
+            $families[] = 'family=' . urlencode($font->getFont()) . ':' . $fontStyle->formatStyleUrl();
         }
 
-        return self::BASE_URL . $url;
+        return self::BASE_URL . implode('&', $families);
     }
 }

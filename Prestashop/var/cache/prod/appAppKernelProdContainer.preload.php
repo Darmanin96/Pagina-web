@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).''.\DIRECTORY_SEPARATOR.'vendor/autoload.php';
-require __DIR__.'/ContainerAjSrC7Z/appAppKernelProdContainer.php';
+require __DIR__.'/ContainerVxquYJt/appAppKernelProdContainer.php';
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -2312,7 +2312,6 @@ $classes[] = 'PrestaShop\Module\PsxDesign\Account\Provider\TokenDecoder';
 $classes[] = 'PrestaShop\Module\PsxDesign\Builder\ColorPaletteBuilder';
 $classes[] = 'PrestaShop\Module\PsxDesign\Builder\ColorsStylesheetBuilder';
 $classes[] = 'PrestaShop\Module\PsxDesign\Builder\FontsStylesheetBuilder';
-$classes[] = 'PrestaShop\Module\PsxDesign\Compiler\ClassicThemeStylesheetCompiler';
 $classes[] = 'PrestaShop\Module\PsxDesign\Compiler\ThemeStylesheetCompiler';
 $classes[] = 'PrestaShop\Module\PsxDesign\Converter\TextToLogoConverter';
 $classes[] = 'PrestaShop\Module\PsxDesign\Exception\Handler\SentryExceptionErrorHandler';
@@ -2337,13 +2336,12 @@ $classes[] = 'PrestaShop\Module\PsxDesign\Repository\PsxdesignColorsPaletteRepos
 $classes[] = 'PrestaShop\Module\PsxDesign\Repository\PsxdesignFontsRepository';
 $classes[] = 'PrestaShop\Module\PsxDesign\Repository\PsxdesignLogoRepository';
 $classes[] = 'PrestaShop\Module\PsxDesign\Service\ModuleUpgradeService';
-$classes[] = 'Lcobucci\JWT\Parser';
-$classes[] = 'PrestaShop\Module\PsxDesign\Tracker\SegmentTracker';
+$classes[] = 'Lcobucci\JWT\Encoding\JoseEncoder';
+$classes[] = 'Lcobucci\JWT\Token\Parser';
 $classes[] = 'PrestaShop\Module\PsxDesign\Utility\LogoUtility';
 $classes[] = 'PrestaShop\Module\PsxDesign\Utility\ThemeConfiguration\ColorUtility';
 $classes[] = 'PrestaShop\Module\PsxDesign\Utility\ThemeConfiguration\FontUtility';
 $classes[] = 'PrestaShop\Module\PsxDesign\Validator\ColorPaletteValidator';
-$classes[] = 'PrestaShop\Module\PsxDesign\Validator\FeaturesCompatibilityValidator';
 $classes[] = 'PrestaShop\PrestaShop\Core\Module\SourceHandler\ZipSourceHandler';
 $classes[] = 'PrestaShopBundle\EventListener\ModuleActivatedListener';
 $classes[] = 'PrestaShopBundle\Kernel\ModuleRepository';
@@ -2492,6 +2490,7 @@ $classes[] = 'PrestaShop\Module\Ps_metrics\StatsTabManager';
 $classes[] = 'PrestaShop\Module\Ps_metrics\Tracker\Segment';
 $classes[] = 'PrestaShop\Module\Ps_metrics\Validation\SelectAccountAnalytics';
 $classes[] = 'PrestaShop\Module\PsxDesign\Account\Provider\PsAccountDataProvider';
+$classes[] = 'PrestaShop\Module\PsxDesign\Http\HttpClient';
 $classes[] = 'PsxDesign';
 $classes[] = 'PsxMarketingWithGoogle';
 $classes[] = 'PrestaShop\Module\PsxMarketingWithGoogle\Factory\ContextFactory';

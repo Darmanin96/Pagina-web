@@ -123,8 +123,6 @@ class PsAccountDataProvider
     /**
      * @return PrestaShopSession
      *
-     * @throws ModuleNotInstalledException
-     * @throws ModuleVersionException
      * @throws PsxDesignException
      */
     private function getPrestashopSessionService(): PrestaShopSession

@@ -64,7 +64,6 @@ class AdminPsxDesignLogosController extends FrameworkBundleAdminController
     use UpgradeNotificationTrait;
 
     private const UPLOAD_LOGO_TYPE_IMAGE = 'image';
-    private const UPLOAD_LOGO_TYPE_TEXT = 'text';
     private const HEADER = 'header';
 
     /**
@@ -130,10 +129,6 @@ class AdminPsxDesignLogosController extends FrameworkBundleAdminController
             // Error is thrown if files variable is not reseted
             // Suggestion to do it found on https://github.com/laravel/framework/issues/12350
             $_FILES = [];
-
-            $this->get('prestashop.module.psxdesign.tracker.segment')
-                ->track(
-                    'Logo Uploaded', ['logo_type' => self::UPLOAD_LOGO_TYPE_IMAGE, 'logo_location' => $destination], $request->server);
         } catch (Throwable $e) {
             $errorHandler = $this->get('prestashop.module.psxdesign.exception.handler.sentry_exception_error_handler');
             $errorHandler->handle($e, $this->getErrorCode($e));
@@ -184,7 +179,6 @@ class AdminPsxDesignLogosController extends FrameworkBundleAdminController
         try {
             $logoUtility->assertFaviconType($favicon->guessClientExtension());
             $uploader->updateFavicon();
-            $this->get('prestashop.module.psxdesign.tracker.segment')->track('Favicon Uploaded', [], $request->server);
             $this->addFlash('success', $this->trans('Favicon updated successfully', 'Modules.Psxdesign.Admin'));
         } catch (Throwable $e) {
             $errorHandler = $this->get('prestashop.module.psxdesign.exception.handler.sentry_exception_error_handler');
@@ -212,9 +206,6 @@ class AdminPsxDesignLogosController extends FrameworkBundleAdminController
 
             $logoTextUploader = $this->get('prestashop.module.psxdesign.handler.logo_text_upload_handler');
             $destination = $logoTextUploader->uploadLogoImage($imagePath, $logoTextData);
-            $this->get('prestashop.module.psxdesign.tracker.segment')
-                ->track(
-                    'Logo Uploaded', ['logo_type' => self::UPLOAD_LOGO_TYPE_TEXT, 'logo_location' => $destination], $request->server);
             $this->addFlash('success', $this->trans('The %destination% logo has been added.', 'Modules.Psxdesign.Admin', ['%destination%' => $this->translateDestination($destination)]));
         } catch (Throwable $e) {
             $this->addFlash('error', $this->getErrorMessageForLogoText($e));

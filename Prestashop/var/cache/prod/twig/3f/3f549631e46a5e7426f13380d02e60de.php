@@ -37,7 +37,7 @@ class __TwigTemplate_23a9c576b9fbf0005aaac7a3089515b1 extends Template
         echo "
 ";
         // line 26
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_computer_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_computer_modal.html.twig", 26, "199213607")->display(twig_array_merge($context, ["id" => "import_theme_from_computer_modal", "closable" => true]));
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_computer_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_computer_modal.html.twig", 26, "564220633")->display(twig_array_merge($context, ["id" => "import_theme_from_computer_modal", "closable" => true]));
     }
 
     public function getTemplateName()
@@ -63,7 +63,7 @@ class __TwigTemplate_23a9c576b9fbf0005aaac7a3089515b1 extends Template
 
 
 /* @Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_computer_modal.html.twig */
-class __TwigTemplate_23a9c576b9fbf0005aaac7a3089515b1___199213607 extends Template
+class __TwigTemplate_23a9c576b9fbf0005aaac7a3089515b1___564220633 extends Template
 {
     private $source;
     private $macros = [];

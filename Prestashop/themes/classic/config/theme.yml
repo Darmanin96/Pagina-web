@@ -45,6 +45,11 @@ assets:
 #  cart:
 #    - id: cat-extra-lib
 #    path: assets/js/cart-lib.js
+  css:
+    all:
+      - id: custom-style
+        path: assets/css/warhammer.css
+
 
 
 global_settings:

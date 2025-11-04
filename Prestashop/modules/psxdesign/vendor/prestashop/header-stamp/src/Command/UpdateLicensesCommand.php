@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace PrestaShop\HeaderStamp\Command;
 
+use Exception;
 use PhpParser\Node\Stmt;
 use PhpParser\ParserFactory;
 use PrestaShop\HeaderStamp\LicenseHeader;
@@ -41,6 +42,7 @@ class UpdateLicensesCommand extends Command
     const DEFAULT_EXTENSIONS = [
         'php',
         'js',
+        'ts',
         'css',
         'scss',
         'tpl',
@@ -267,6 +269,7 @@ class UpdateLicensesCommand extends Command
 
                     break;
                 case 'js':
+                case 'ts':
                 case 'css':
                 case 'scss':
                     $this->addLicenseToFile($file);
@@ -301,7 +304,7 @@ class UpdateLicensesCommand extends Command
         $content = $file->getContents();
         $oldContent = $content;
         // Regular expression found thanks to Stephen Ostermiller's Blog. http://blog.ostermiller.org/find-comment
-        $regex = '%' . $startDelimiter . '\*([^*]|[\r\n]|(\*+([^*' . $endDelimiter . ']|[\r\n])))*\*+' . $endDelimiter . '%';
+        $regex = '%^' . $startDelimiter . '\*([^*]|[\r\n]|(\*+([^*' . $endDelimiter . ']|[\r\n])))*\*+' . $endDelimiter . '%';
         $matches = [];
         $text = $this->text;
         if ($startDelimiter != '\/') {
@@ -397,38 +400,52 @@ class UpdateLicensesCommand extends Command
         $this->addLicenseToFile($file, '<!--', '-->');
     }
 
-    private function addLicenseToJsonFile(SplFileInfo $file): bool
+    /**
+     * @throws Exception
+     */
+    private function addLicenseToJsonFile(SplFileInfo $file): void
     {
         if (!in_array($file->getFilename(), ['composer.json', 'package.json'])) {
-            return false;
+            return;
         }
 
         $content = json_decode($file->getContents(), true);
-        $oldContent = $content;
-        $content['author'] = 'PrestaShop';
-        $content['license'] = (false !== strpos($this->license, 'afl')) ? 'AFL-3.0' : 'OSL-3.0';
 
-        if (!$this->runAsDry) {
-            $result = file_put_contents(
-                $this->targetDirectory . '/' . $file->getRelativePathname(),
-                json_encode($content, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
-            );
-        } else {
-            $result = true;
+        $authorDetails = [
+            'name' => 'PrestaShop SA',
+            'email' => 'contact@prestashop.com',
+        ];
+
+        // update author information depending of file
+        if ('composer.json' === $file->getFilename()) {
+            $content['authors'] = [$authorDetails];
+        } else { // package.json
+            $content['author'] = $authorDetails;
         }
 
-        $newFileContent = (string) json_encode($content);
-        $oldFileContent = (string) json_encode($oldContent);
+        $content['license'] = (false !== strpos($this->license, 'afl')) ? 'AFL-3.0' : 'OSL-3.0';
 
-        $this->reportOperationResult($newFileContent, $oldFileContent, $file->getFilename());
+        $encodedContent = json_encode($content, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
-        return false !== $result;
+        if (!$encodedContent) {
+            throw new Exception('File can not be encoded to JSON format');
+        }
+
+        // add blank line in end of file if not exist
+        if (substr($encodedContent, -1) !== "\n") {
+            $encodedContent .= "\n";
+        }
+
+        if (!$this->runAsDry) {
+            file_put_contents(
+                $this->targetDirectory . '/' . $file->getRelativePathname(),
+                $encodedContent
+            );
+        }
+
+        $this->reportOperationResult($encodedContent, $file->getContents(), $file->getFilename());
     }
 
-    /**
-     * @var string
-     * @var string
-     */
     private function reportOperationResult(string $newFileContent, string $oldFileContent, string $filename): void
     {
         if ($newFileContent !== $oldFileContent) {

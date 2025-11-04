@@ -12,6 +12,6 @@ services:
     class: Context
     factory: [ 'Context', 'getContext' ]
 
-  psxdesign.guzzle.client:
-    class: 'GuzzleHttp\Client'
+  psxdesign.http_client:
+    class: 'PrestaShop\Module\PsxDesign\Http\HttpClient'
     public: true

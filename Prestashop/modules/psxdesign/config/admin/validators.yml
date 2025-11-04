@@ -4,8 +4,3 @@ services:
 
   prestashop.module.psxdesign.validator.color_palette_validator:
     class: PrestaShop\Module\PsxDesign\Validator\ColorPaletteValidator
-
-  prestashop.module.psxdesign.validator.features_compatibility_validator:
-    class: PrestaShop\Module\PsxDesign\Validator\FeaturesCompatibilityValidator
-    arguments:
-      - "@=service('prestashop.core.addon.theme.theme_provider').getCurrentlyUsedTheme()"

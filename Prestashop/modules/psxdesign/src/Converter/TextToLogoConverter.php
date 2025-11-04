@@ -32,7 +32,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use GdImage;
 use PrestaShop\Module\PsxDesign\Config\PsxDesignConfig;
 use PrestaShop\Module\PsxDesign\DTO\PsxDesignLogoTextData;
 use PrestaShop\Module\PsxDesign\Exception\PsxDesignTextToImageConvertException;
@@ -48,7 +47,7 @@ class TextToLogoConverter implements TextToImageConverterInterface
     private const EXTENSION = '.png';
 
     /**
-     * @var false|resource|GdImage
+     * @var false|resource
      */
     private $image;
 

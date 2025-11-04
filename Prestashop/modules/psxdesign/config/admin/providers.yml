@@ -21,7 +21,7 @@ services:
   prestashop.module.psxdesign.provider.font_data_provider:
     class: PrestaShop\Module\PsxDesign\Provider\FontDataProvider
     arguments:
-      - '@psxdesign.guzzle.client'
+      - '@psxdesign.http_client'
       - "@=service('psxdesign.module').getLocalPath()"
 
 #  Theme configuration providers

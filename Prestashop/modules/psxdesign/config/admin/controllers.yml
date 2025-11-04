@@ -1,9 +1,12 @@
 services:
   _defaults:
     public: true
+    autowire: true
 
   PrestaShop\Module\PsxDesign\Controller\Admin\AdminPsxDesignThemeGeneralController:
     class: PrestaShop\Module\PsxDesign\Controller\Admin\AdminPsxDesignThemeGeneralController
+    arguments:
+      - '@prestashop.core.addon.theme.repository'
 
   PrestaShop\Module\PsxDesign\Controller\Admin\AdminPsxDesignLogosController:
     class: PrestaShop\Module\PsxDesign\Controller\Admin\AdminPsxDesignLogosController

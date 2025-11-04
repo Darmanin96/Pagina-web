@@ -33,7 +33,6 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use PrestaShop\Module\PsxDesign\Builder\ColorsStylesheetBuilder;
-use PrestaShop\Module\PsxDesign\Compiler\ClassicThemeStylesheetCompiler;
 use PrestaShop\Module\PsxDesign\Compiler\ThemeStylesheetCompiler;
 use PrestaShop\Module\PsxDesign\Config\PsxDesignConfig;
 use PrestaShop\Module\PsxDesign\DTO\ThemeConfiguration\Color\PsxDesignColorConfiguration;
@@ -48,11 +47,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class ColorsStylesheetsProcessor
 {
-    /**
-     * @var ClassicThemeStylesheetCompiler
-     */
-    private $classicThemeCompiler;
-
     /**
      * @var ThemeStylesheetCompiler
      */
@@ -109,7 +103,6 @@ class ColorsStylesheetsProcessor
     private $cssSelectorColors;
 
     public function __construct(
-        ClassicThemeStylesheetCompiler $classicThemeCompiler,
         ThemeStylesheetCompiler $themeCompiler,
         Filesystem $fileSystem,
         ThemeConfigurationProvider $configurationProvider,
@@ -119,7 +112,6 @@ class ColorsStylesheetsProcessor
         string $themesPath,
         int $shopId
     ) {
-        $this->classicThemeCompiler = $classicThemeCompiler;
         $this->themeCompiler = $themeCompiler;
         $this->fileSystem = $fileSystem;
         $this->configurationProvider = $configurationProvider;
@@ -165,9 +157,7 @@ class ColorsStylesheetsProcessor
 
             $this->replaceStylesheet($content, $type);
 
-            if ($this->themeName === PsxDesignConfig::CLASSIC_THEME_NAME) {
-                $this->classicThemeCompiler->processThemeStylesheetReplacement($content);
-            } elseif ($type === PsxDesignConfig::SCSS_VARIABLE && !empty($this->scssVariableColors) && $this->configurationProvider->global->scssFeatureAvailability()) {
+            if ($type === PsxDesignConfig::SCSS_VARIABLE && !empty($this->scssVariableColors) && $this->configurationProvider->global->scssFeatureAvailability()) {
                 try {
                     $this->themeCompiler->processThemeStylesheetReplacement();
                 } catch (PsxDesignCompilerException|CompilerException $e) {

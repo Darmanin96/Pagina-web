@@ -42,7 +42,7 @@ trait UpgradeNotificationTrait
     protected function showUpgradeNotification(): void
     {
         /** @var ModuleUpgradeService $upgradeService */
-        $upgradeService = $this->get('prestashop.module.psxdesign.service.module_upgrade_service');
+        $upgradeService = $this->container->get('prestashop.module.psxdesign.service.module_upgrade_service');
 
         if ($upgradeService->isUpgradeAvailable()) {
             $template = $this->render(

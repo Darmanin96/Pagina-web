@@ -2,7 +2,7 @@ admin_psxdesign_themes_index:
   path: /themes
   methods: [ GET ]
   defaults:
-    _controller: 'PrestaShop\Module\PsxDesign\Controller\Admin\AdminPsxDesignThemeGeneralController::indexAction'
+    _controller: 'PrestaShop\Module\PsxDesign\Controller\Admin\AdminPsxDesignThemeGeneralController::displayPage'
     _legacy_controller: AdminPsxDesignThemeGeneral
     _legacy_link: AdminPsxDesignThemeGeneral
 

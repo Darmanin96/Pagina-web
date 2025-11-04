@@ -97,7 +97,6 @@ class AdminPsxDesignColorsController extends FrameworkBundleAdminController
         try {
             $upsertedColors = $this->get('prestashop.module.psxdesign.handler.color_palette_upsert_handler')->upsertColors($colors);
             $updatedElements = $colorsProvider->getUpdatedColorCategoriesTitles($previousColors, $upsertedColors);
-            $this->get('prestashop.module.psxdesign.tracker.segment')->track('Color Updated', ['element' => $updatedElements], $request->server);
         } catch (Throwable $e) {
             $this->addFlash('error', $this->getUpsertColorPaletteErrorMessage($e));
             $this->get('prestashop.module.psxdesign.exception.handler.sentry_exception_error_handler')->handle($e, $this->getUpsertColorPaletteErrorCode($e));
@@ -150,7 +149,7 @@ class AdminPsxDesignColorsController extends FrameworkBundleAdminController
         try {
             $theme = $theme->getInstanceByName($themeName);
         } catch (\PrestaShopException $e) {
-            $this->addFlash('error', $this->trans('Classic theme is not installed.', 'Modules.Psxdesign.Admin'));
+            $this->addFlash('error', $this->trans('Internal error. Cannot access theme instance.', 'Modules.Psxdesign.Admin'));
 
             return $this->redirectToRoute('admin_colors_index');
         }

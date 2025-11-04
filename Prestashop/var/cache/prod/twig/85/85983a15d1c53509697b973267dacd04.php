@@ -54,120 +54,123 @@ class __TwigTemplate_a19c45622cce31cf9240478c55fbce36 extends Template
     {
         $macros = $this->macros;
         // line 29
+        echo "  ";
+        $this->loadTemplate("@Modules/psxdesign/views/templates/components/alert_eol.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 29)->display($context);
+        // line 30
         echo "  <div class=\"container\">
     ";
-        // line 30
+        // line 31
         $this->displayBlock('current_theme', $context, $blocks);
-        // line 40
+        // line 41
         echo "    ";
         $this->displayBlock('theme_library', $context, $blocks);
-        // line 50
+        // line 51
         echo "  </div>
   ";
-        // line 51
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_computer_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 51)->display($context);
         // line 52
-        echo "  ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_web_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 52)->display($context);
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_computer_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 52)->display($context);
         // line 53
         echo "  ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_ftp_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 53)->display($context);
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_web_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 53)->display($context);
         // line 54
         echo "  ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/delete_theme_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 54)->display($context);
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/import_theme_from_ftp_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 54)->display($context);
         // line 55
         echo "  ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/use_theme_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 55)->display(twig_array_merge($context, ($context["currentlyUsedTheme"] ?? null)));
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/delete_theme_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 55)->display($context);
+        // line 56
+        echo "  ";
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/Modals/use_theme_modal.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 56)->display(twig_array_merge($context, ($context["currentlyUsedTheme"] ?? null)));
     }
 
-    // line 30
+    // line 31
     public function block_current_theme($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 31
+        // line 32
         echo "      <div class=\"row\">
         ";
-        // line 32
+        // line 33
         $this->displayBlock('current_theme_description', $context, $blocks);
-        // line 35
+        // line 36
         echo "        ";
         $this->displayBlock('current_theme_content', $context, $blocks);
-        // line 38
+        // line 39
         echo "      </div>
     ";
     }
 
-    // line 32
+    // line 33
     public function block_current_theme_description($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 33
-        echo "          ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/CurrentTheme/current_theme_description.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 33)->display($context);
         // line 34
+        echo "          ";
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/CurrentTheme/current_theme_description.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 34)->display($context);
+        // line 35
         echo "        ";
     }
 
-    // line 35
+    // line 36
     public function block_current_theme_content($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 36
-        echo "          ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/CurrentTheme/current_theme_content.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 36)->display($context);
         // line 37
+        echo "          ";
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/CurrentTheme/current_theme_content.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 37)->display($context);
+        // line 38
         echo "        ";
     }
 
-    // line 40
+    // line 41
     public function block_theme_library($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 41
+        // line 42
         echo "      <div class=\"row\">
         ";
-        // line 42
+        // line 43
         $this->displayBlock('theme_library_description', $context, $blocks);
-        // line 45
+        // line 46
         echo "        ";
         $this->displayBlock('theme_library_content', $context, $blocks);
-        // line 48
+        // line 49
         echo "      </div>
     ";
     }
 
-    // line 42
+    // line 43
     public function block_theme_library_description($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 43
-        echo "          ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/ThemeLibrary/theme_library_description.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 43)->display($context);
         // line 44
+        echo "          ";
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/ThemeLibrary/theme_library_description.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 44)->display($context);
+        // line 45
         echo "        ";
     }
 
-    // line 45
+    // line 46
     public function block_theme_library_content($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 46
-        echo "          ";
-        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/ThemeLibrary/theme_library_content.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 46)->display($context);
         // line 47
+        echo "          ";
+        $this->loadTemplate("@Modules/psxdesign/views/templates/admin/themes/Blocks/ThemeLibrary/theme_library_content.html.twig", "@Modules/psxdesign/views/templates/admin/themes/index.html.twig", 47)->display($context);
+        // line 48
         echo "        ";
     }
 
-    // line 58
+    // line 59
     public function block_javascripts($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 59
+        // line 60
         echo "  ";
         $this->displayParentBlock("javascripts", $context, $blocks);
         echo "
   <script src=\"";
-        // line 60
+        // line 61
         echo twig_escape_filter($this->env, $this->extensions['Symfony\Bridge\Twig\Extension\AssetExtension']->getAssetUrl("themes/new-theme/public/themes.bundle.js"), "html", null, true);
         echo "\"></script>
 ";
@@ -185,7 +188,7 @@ class __TwigTemplate_a19c45622cce31cf9240478c55fbce36 extends Template
 
     public function getDebugInfo()
     {
-        return array (  171 => 60,  166 => 59,  162 => 58,  158 => 47,  155 => 46,  151 => 45,  147 => 44,  144 => 43,  140 => 42,  135 => 48,  132 => 45,  130 => 42,  127 => 41,  123 => 40,  119 => 37,  116 => 36,  112 => 35,  108 => 34,  105 => 33,  101 => 32,  96 => 38,  93 => 35,  91 => 32,  88 => 31,  84 => 30,  79 => 55,  76 => 54,  73 => 53,  70 => 52,  68 => 51,  65 => 50,  62 => 40,  60 => 30,  57 => 29,  53 => 28,  42 => 26,);
+        return array (  174 => 61,  169 => 60,  165 => 59,  161 => 48,  158 => 47,  154 => 46,  150 => 45,  147 => 44,  143 => 43,  138 => 49,  135 => 46,  133 => 43,  130 => 42,  126 => 41,  122 => 38,  119 => 37,  115 => 36,  111 => 35,  108 => 34,  104 => 33,  99 => 39,  96 => 36,  94 => 33,  91 => 32,  87 => 31,  82 => 56,  79 => 55,  76 => 54,  73 => 53,  71 => 52,  68 => 51,  65 => 41,  63 => 31,  60 => 30,  57 => 29,  53 => 28,  42 => 26,);
     }
 
     public function getSourceContext()
