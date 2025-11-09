@@ -20,36 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-
+/**
+ * @deprecated
+ */
 class DisplayAccountUpdateWarning extends Hook
 {
     /**
-     * @var PsAccountsService
-     */
-    private $accountsService;
-
-    public function __construct(\Ps_accounts $module)
-    {
-        parent::__construct($module);
-        $this->accountsService = $this->module->getService(PsAccountsService::class);
-    }
-
-    /**
-     * @return string
+     * @param array $params
      *
-     * @throws Exception
+     * @return string
      */
     public function execute(array $params = [])
     {
-        if ($this->accountsService->isAccountLinked() &&
-            !$this->module->getShopContext()->isMultishopActive()) {
-            // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
-            // Some users may have the same and couldn't render the configuration page
-            return $this->module->renderUpdateWarningView();
-        }
-
         return '';
     }
 }

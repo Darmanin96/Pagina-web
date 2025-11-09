@@ -1,0 +1,27 @@
+# theme.yml - Estructura ejemplo para un tema de PrestaShop 1.7+
+name: warhammer
+display_name:
+  es: "Warhammer"
+  en: "Warhammer Theme"
+version: "1.0.0"
+author: "Daniel Darmanin"
+description:
+  es: "Tema personalizado para tienda Warhammer"
+  en: "Custom Warhammer store theme"
+
+
+# Assets (CSS / JS) que carga el tema
+assets:
+  css:
+    - id: warhammer-style
+      path: assets/css/style.css
+      media: all
+    - id: vendor
+      path: assets/css/vendor.css
+      media: all
+  js:
+    - id: theme-main
+      path: assets/js/theme.js
+    - id: vendor
+      path: assets/js/vendor.js
+

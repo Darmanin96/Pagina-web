@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
+use PrestaShop\Module\PsAccounts\Log\Logger;
+
 class Configuration
 {
     /**
@@ -166,6 +168,16 @@ class Configuration
 
     /**
      * @param string $key
+     *
+     * @return mixed
+     */
+    public function getGlobal($key)
+    {
+        return \Configuration::getGlobalValue($key);
+    }
+
+    /**
+     * @param string $key
      * @param string|array $values
      * @param bool $html
      *
@@ -183,20 +195,72 @@ class Configuration
      * @param string|bool $default
      *
      * @return mixed
-     *
-     * @throws \PrestaShopDatabaseException
-     * @throws \PrestaShopException
      */
     public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
     {
+        try {
+            return $this->getUncachedConfiguration($key, $idShopGroup, $idShop)->value;
+        } catch (\Exception $e) {
+            return $default;
+        }
+    }
+
+    /**
+     * @param string $key
+     * @param int|null $idShopGroup
+     * @param int|null $idShop
+     *
+     * @return \Configuration
+     *
+     * @throw \Exception
+     */
+    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null)
+    {
+        if (!$this->isMultishopActive()) {
+            $idShopGroup = $idShop = null;
+        }
         $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
         if ($id > 0) {
             $found = (new \Configuration($id));
             $found->clearCache();
 
-            return $found->value;
+            return $found;
         }
 
-        return $default;
+        throw new \Exception('Configuration entry not found: ' . $key . '|grp:' . $idShopGroup . '|shop:' . $idShop);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return \DateTime|null
+     */
+    public function getDateUpd($key)
+    {
+        try {
+            $entry = $this->getUncachedConfiguration(
+                $key,
+                $this->getIdShopGroup(),
+                $this->getIdShop()
+            );
+
+            return new \DateTime($entry->date_upd);
+        } catch (\Exception $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * is multi-shop active "right now"
+     *
+     * @return bool
+     */
+    public function isMultishopActive()
+    {
+        //return \Shop::isFeatureActive();
+        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
+            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
     }
 }

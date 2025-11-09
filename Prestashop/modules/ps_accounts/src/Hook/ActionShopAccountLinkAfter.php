@@ -20,21 +20,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-
+/**
+ * @deprecated
+ */
 class ActionShopAccountLinkAfter extends Hook
 {
     /**
      * @param array $params
      *
      * @return void
-     *
-     * @throws \Exception
      */
     public function execute(array $params = [])
     {
-//        /** @var PsAccountsService $service */
-//        $service = $this->module->getService(PsAccountsService::class);
-//        $service->enableLogin(true);
     }
 }

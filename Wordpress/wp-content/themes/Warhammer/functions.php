@@ -40,8 +40,15 @@ function estilos_personalizados() {
     wp_enqueue_style('warhammer-estilos', get_stylesheet_uri());
 }
 
+function css_lore() {
+    if (is_page_template('poi.php')) {
+        wp_enqueue_style('lore', get_template_directory_uri() . '/css/lore.css', array(), '1.0.0');
+    }
+}
+
 add_action('after_setup_theme', 'warhammer_setup');
 add_action('wp_footer', 'video_scroll');
 add_action('wp_enqueue_scripts', 'fronts_google');
 add_action('wp_enqueue_scripts', 'estilos_personalizados');
+add_action('wp_enqueue_scripts', 'css_lore');
 ?>

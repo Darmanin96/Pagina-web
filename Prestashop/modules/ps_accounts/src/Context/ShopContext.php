@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
@@ -160,12 +161,10 @@ class ShopContext
     }
 
     /**
-     * @param int $shopId
+     * @param int|null $shopId
      * @param \Closure $closure
      *
      * @return mixed
-     *
-     * @throws \Exception
      */
     public function execInShopContext($shopId, $closure)
     {
@@ -173,17 +172,48 @@ class ShopContext
         $this->configuration->setShopId($shopId);
 
         $exception = null;
+        $result = null;
 
         try {
             $result = $closure();
-        } catch (\Exception $e) {
-            $exception = $e;
+        } catch (\Throwable $exception) {
+            /* @phpstan-ignore-next-line */
+        } catch (\Exception $exception) {
         }
+
         $this->configuration->setShopId($backup);
 
-        if (null === $exception) {
-            return $result;
+        if (null !== $exception) {
+            throw $exception;
         }
-        throw $exception;
+
+        return $result;
+    }
+
+    /**
+     * @return array|null[]
+     */
+    public function getMultiShopIds()
+    {
+        $shops = [];
+        $db = \Db::getInstance();
+        try {
+            $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
+            while ($row = $db->nextRow($result)) {
+                /* @phpstan-ignore-next-line */
+                $shops[] = $row['id_shop'];
+            }
+        } catch (\Throwable $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
+            return [];
+            /* @phpstan-ignore-next-line */
+        } catch (\Exception $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
+            return [];
+        }
+
+        return $shops;
     }
 }

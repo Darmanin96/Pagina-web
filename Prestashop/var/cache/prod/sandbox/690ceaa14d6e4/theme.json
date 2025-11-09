@@ -1,0 +1,30 @@
+{
+  "name": "warhammer",
+  "display_name": "Warhammer",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Darmanin",
+    "email": "your.email@example.com"
+  },
+  "meta": {
+    "compatibility": {
+      "from": "8.0.0",
+      "to": "8.0.1"
+    },
+    "available_layouts": ["layout-full-width", "layout-left-column", "layout-right-column"],
+    "responsive": true,
+    "viewports": {
+      "mobile": 767,
+      "tablet": 991,
+      "desktop": 1199
+    }
+  },
+  "assets": {
+    "use_parent_assets": false
+  },
+  "global_settings": {
+    "configuration": {
+      "PS_IMAGE_QUALITY": "png"
+    }
+  }
+}

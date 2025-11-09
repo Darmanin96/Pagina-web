@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class ConfigurationRepository
 {
@@ -165,6 +164,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @return \DateTime|null
+     */
+    public function getShopUuidDateUpd()
+    {
+        return $this->configuration->getDateUpd(ConfigurationKeys::PSX_UUID_V4);
+    }
+
+    /**
      * @param string $uuid Firebase User UUID
      *
      * @return void
@@ -175,42 +182,6 @@ class ConfigurationRepository
             $this->configuration->set(ConfigurationKeys::PS_CHECKOUT_SHOP_UUID_V4, $uuid);
         }
         $this->configuration->set(ConfigurationKeys::PSX_UUID_V4, $uuid);
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccountsRsaPrivateKey()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PRIVATE_KEY);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return void
-     */
-    public function updateAccountsRsaPrivateKey($key)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_PRIVATE_KEY, $key);
-    }
-
-    /**
-     * @return string|bool
-     */
-    public function getAccountsRsaPublicKey()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return void
-     */
-    public function updateAccountsRsaPublicKey($key)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $key);
     }
 
     /**
@@ -352,8 +323,6 @@ class ConfigurationRepository
      */
     public function fixMultiShopConfig()
     {
-        Logger::getInstance()->error(__METHOD__);
-
         if ($this->isMultishopActive()) {
             $this->migrateToMultiShop();
         } else {
@@ -369,8 +338,7 @@ class ConfigurationRepository
     public function isMultishopActive()
     {
         //return \Shop::isFeatureActive();
-        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
-            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+        return $this->configuration->isMultishopActive();
     }
 
     /**
@@ -390,7 +358,7 @@ class ConfigurationRepository
      */
     public function getLastUpgrade($cached = true)
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached) ?: '0';
     }
 
     /**
@@ -409,6 +377,73 @@ class ConfigurationRepository
     public function updateUnlinkedOnError($error)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR, $error);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getShopProof()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_PROOF);
+    }
+
+    /**
+     * @param string|null $proof
+     *
+     * @return void
+     */
+    public function updateShopProof($proof)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_PROOF, $proof);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCachedShopStatus()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS, false, false);
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getCachedShopStatusDateUpd()
+    {
+        return $this->configuration->getDateUpd(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
+    }
+
+    /**
+     * @param string|null $status
+     *
+     * @return void
+     */
+    public function updateCachedShopStatus($status)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS, $status);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getValidationLeeway()
+    {
+        $leeway = $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY);
+        if (!empty($leeway) || $leeway === '0') {
+            return (int) $leeway;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int $leeway
+     *
+     * @return void
+     */
+    public function updateValidationLeeway($leeway)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY, (string) $leeway);
     }
 
     /**

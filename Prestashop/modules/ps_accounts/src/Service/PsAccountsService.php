@@ -20,15 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 
@@ -50,17 +47,27 @@ class PsAccountsService
     /**
      * @var ShopSession
      */
+    private $session;
+
+    /**
+     * @var Firebase\ShopSession
+     */
     private $shopSession;
 
     /**
-     * @var OwnerSession
+     * @var Firebase\OwnerSession
      */
     private $ownerSession;
 
     /**
-     * @var LinkShop
+     * @var StatusManager
      */
-    private $linkShop;
+    private $statusManager;
+
+    /**
+     * @var AdminTokenService
+     */
+    private $tokenService;
 
     /**
      * @param \Ps_accounts $module
@@ -70,10 +77,12 @@ class PsAccountsService
     public function __construct(\Ps_accounts $module)
     {
         $this->module = $module;
-        $this->shopSession = $this->module->getService(ShopSession::class);
-        $this->ownerSession = $this->module->getService(OwnerSession::class);
+        $this->session = $this->module->getService(ShopSession::class);
+        $this->shopSession = $this->module->getService(Firebase\ShopSession::class);
+        $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
-        $this->linkShop = $module->getService(LinkShop::class);
+        $this->statusManager = $module->getService(StatusManager::class);
+        $this->tokenService = $module->getService(AdminTokenService::class);
     }
 
     /**
@@ -99,15 +108,24 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->linkShop->getShopUuid();
+        return $this->statusManager->getCloudShopId();
     }
 
     /**
+     *  Returns a Shop Token from the Legacy Authority: https://securetoken.google.com/prestashop-newsso-production
+     *  and an empty string if any error occurs
+     *
      * @return string
+     *
+     * @deprecated please move to hydra tokens as soon as possible
      */
     public function getOrRefreshToken()
     {
-        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
+        try {
+            return (string) $this->shopSession->getValidToken()->getJwt();
+        } catch (RefreshTokenException $e) {
+            return '';
+        }
     }
 
     /**
@@ -127,13 +145,29 @@ class PsAccountsService
     }
 
     /**
+     * Returns Shop Token with the new authority: https://oauth.prestashop.com
+     *
+     * @return string
+     *
+     * @throws RefreshTokenException
+     */
+    public function getShopToken()
+    {
+        return (string) $this->session->getValidToken();
+    }
+
+    /**
      * @return string
      *
      * @deprecated
      */
     public function getUserToken()
     {
-        return (string) $this->ownerSession->getOrRefreshToken()->getJwt();
+        try {
+            return (string) $this->ownerSession->getValidToken()->getJwt();
+        } catch (RefreshTokenException $e) {
+            return '';
+        }
     }
 
     /**
@@ -151,7 +185,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->linkShop->getOwnerUuid();
+        return (string) $this->statusManager->getPointOfContactUuid();
     }
 
     /**
@@ -169,27 +203,55 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->linkShop->getOwnerEmail();
+        return $this->statusManager->getPointOfContactEmail();
     }
 
     /**
      * @return bool
      *
-     * @throws \Exception
+     * @deprecated since v8.0.0
      */
     public function isAccountLinked()
     {
-        return $this->linkShop->exists();
+        return $this->statusManager->identityCreated() &&
+            $this->statusManager->identityVerified() &&
+            $this->statusManager->getPointOfContactUuid();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopIdentityCreated()
+    {
+        return $this->statusManager->identityCreated();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopIdentityVerified()
+    {
+        return $this->statusManager->identityVerified();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopPointOfContactSet()
+    {
+        return (bool) $this->statusManager->getPointOfContactUuid();
     }
 
     /**
      * @return bool
      *
      * @throws \Exception
+     *
+     * @depercated since v8.0.0
      */
     public function isAccountLinkedV4()
     {
-        return $this->linkShop->existsV4();
+        return false; //$this->shopIdentity->existsV4();
     }
 
     /**
@@ -206,6 +268,18 @@ class PsAccountsService
     {
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
+    }
+
+    /**
+     * @param string|null $source
+     *
+     * @return string
+     *
+     * @throws \PrestaShopException
+     */
+    public function getContextUrl($source = null)
+    {
+        return $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'getContext', 'source' => $source]);
     }
 
     /**
@@ -226,63 +300,6 @@ class PsAccountsService
     public function getAccountsCdn()
     {
         return $this->module->getParameter('ps_accounts.accounts_cdn_url');
-    }
-
-    /**
-     * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
-     */
-    public function autoReonboardOnV5()
-    {
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->module->getService(ShopProvider::class);
-
-        /** @var ConfigurationRepository $conf */
-        $conf = $this->module->getService(ConfigurationRepository::class);
-
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
-        /** @var CommandBus $commandBus */
-        $commandBus = $this->module->getService(CommandBus::class);
-
-        $allShops = $shopProvider->getShopsTree((string) $this->module->name);
-
-        $flattenShops = [];
-
-        foreach ($allShops as $shopGroup) {
-            foreach ($shopGroup['shops'] as $shop) {
-                $shop['multishop'] = (bool) $shopGroup['multishop'];
-                $flattenShops[] = $shop;
-            }
-        }
-
-        $isAlreadyReonboard = false;
-
-        usort($flattenShops, function ($firstShop, $secondShop) {
-            return (int) $firstShop['id'] - (int) $secondShop['id'];
-        });
-
-        foreach ($flattenShops as $shop) {
-            if ($shop['isLinkedV4']) {
-                $id = $conf->getShopId();
-                if ($isAlreadyReonboard) {
-                    $conf->setShopId((int) $shop['id']);
-
-                    $commandBus->handle(new UnlinkShopCommand($shop['id']));
-
-                    $conf->setShopId($id);
-                } else {
-                    $shop['employeeId'] = null;
-
-                    $commandBus->handle(new MigrateAndLinkV4ShopCommand($id, $shop));
-
-                    $isAlreadyReonboard = true;
-                }
-            }
-        }
     }
 
     /**
@@ -321,12 +338,30 @@ class PsAccountsService
     public function getEmployeeAccount()
     {
         $repository = new EmployeeAccountRepository();
-        if ($repository->isCompatPs16()) {
+        try {
             return $repository->findByEmployeeId(
                 $this->module->getContext()->employee->id
             );
+        } catch (\Exception $e) {
+            return null;
         }
+    }
 
-        return null;
+    /**
+     * @param string $psxName
+     *
+     * @return array
+     */
+    public function getComponentInitParams($psxName = 'ps_accounts')
+    {
+        return [
+            'mode' => \Shop::getContext(),
+            'shopId' => \Shop::getContextShopID(),
+            'groupId' => \Shop::getContextShopGroupID(),
+            'getContextUrl' => $this->getContextUrl($psxName),
+            'manageAccountUrl' => $this->module->getAccountsUiUrl(),
+            'token' => (string) $this->tokenService->getToken(),
+            'psxName' => $psxName,
+        ];
     }
 }

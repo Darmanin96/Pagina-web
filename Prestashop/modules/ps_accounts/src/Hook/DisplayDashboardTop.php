@@ -20,90 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-
+/**
+ * @deprecated
+ */
 class DisplayDashboardTop extends Hook
 {
     /**
      * @param array $params
      *
-     * @return mixed
-     *
-     * @throws Exception
+     * @return string
      */
     public function execute(array $params = [])
     {
-        $shopContext = $this->module->getShopContext();
-
-        /** @var PsAccountsService $accountsService */
-        $accountsService = $this->module->getService(PsAccountsService::class);
-
-        if ('AdminShopUrl' === $_GET['controller']) {
-            return $this->renderAdminShopUrlWarningIfLinked($shopContext, $accountsService);
-        }
-
-        if ('AdminShop' === $_GET['controller']) {
-            return $this->renderAdminShopWarningIfLinked($shopContext, $accountsService);
-        }
-    }
-
-    /**
-     * @param ShopContext $shopContext
-     * @param PsAccountsService $accountsService
-     *
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    protected function renderAdminShopWarningIfLinked($shopContext, $accountsService)
-    {
-        if (isset($_GET['addshop'])) {
-            return;
-        }
-
-        if (isset($_GET['updateshop'])) {
-            return;
-        }
-
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->module->getService(ShopProvider::class);
-
-        $shopsTree = $shopProvider->getShopsTree('ps_accounts');
-        foreach ($shopsTree as $shopGroup) {
-            foreach ($shopGroup['shops'] as $shop) {
-                $isLink = $shopContext->execInShopContext($shop['id'], function () use ($accountsService) {
-                    return $accountsService->isAccountLinked();
-                });
-                if ($isLink) {
-                    return $this->module->renderDeleteWarningView();
-                }
-            }
-        }
-    }
-
-    /**
-     * @param ShopContext $shopContext
-     * @param PsAccountsService $accountsService
-     *
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    protected function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService)
-    {
-        if (!isset($_GET['updateshop_url'])) {
-            return;
-        }
-
-        $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
-
-        return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
-            if ($accountsService->isAccountLinked()) {
-                return $this->module->renderUpdateWarningView();
-            }
-        });
+        return '';
     }
 }

@@ -1,0 +1,13 @@
+name: warhammer
+display_name: 'Warhammer'
+version: '1.0.0'
+author:
+  name: 'Daniel Darmanin'
+
+meta:
+  compatibility:
+    from: '8.0.0'
+    to: null
+
+# Nota: este es un manifest mínimo para aislar errores de importación.
+# Si la importación funciona, podemos volver a añadir assets, layouts y dependencias.

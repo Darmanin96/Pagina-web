@@ -24,9 +24,7 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ./bin/console doctrine:schema:update --dump-sql
- *
- * EmployeeAccount
+ * EmployeeAccount.
  *
  * @ORM\Table()
  * @ORM\Entity()
@@ -40,8 +38,6 @@ class EmployeeAccount
      * @ORM\Id
      * @ORM\Column(name="id_employee_account", type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @phpstan-ignore-next-line
      */
     private $id;
 

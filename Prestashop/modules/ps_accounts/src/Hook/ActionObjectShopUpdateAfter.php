@@ -20,61 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
-
+/**
+ * @deprecated
+ */
 class ActionObjectShopUpdateAfter extends Hook
 {
     /**
      * @param array $params
      *
      * @return bool
-     *
-     * @throws Exception
      */
     public function execute(array $params = [])
     {
-        /** @var Link $link */
-        $link = $this->module->getService(Link::class);
-
-        $shop = new \Shop($params['object']->id);
-
-        $domain = $params['object']->domain;
-        $sslDomain = $params['object']->domain_ssl;
-
-        $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
-            'shopId' => (string) $params['object']->id,
-            'name' => $params['object']->name,
-            'domain' => 'http://' . $shop->domain,
-            'sslDomain' => 'https://' . $shop->domain_ssl,
-            'physicalUri' => $shop->physical_uri,
-            'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                $sslDomain,
-                $domain,
-                'AdminModules',
-                false,
-                [],
-                [
-                    'configure' => $this->module->name,
-                    'setShopContext' => 's-' . $params['object']->id,
-                ]
-            ),
-        ])));
-
-        if (!$response) {
-            $this->module->getLogger()->debug(
-                'Error trying to PATCH shop : No $response object'
-            );
-        } elseif (true !== $response['status']) {
-            $this->module->getLogger()->debug(
-                'Error trying to PATCH shop : ' . $response['httpCode'] .
-                ' ' . print_r($response['body']['message'] ?: '', true)
-            );
-        }
-
         return true;
     }
 }

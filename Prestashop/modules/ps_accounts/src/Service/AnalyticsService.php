@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Monolog\Logger;
-use Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 use Segment;
 
 class AnalyticsService
@@ -306,7 +306,7 @@ class AnalyticsService
             if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
                 self::$anonymousId = Uuid::uuid4()->toString();
                 try {
-                    setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
+                    setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600, '/');
                 } catch (\Exception $e) {
                     $this->logger->error($e->getMessage());
                 }

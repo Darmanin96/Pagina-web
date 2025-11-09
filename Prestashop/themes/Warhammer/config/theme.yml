@@ -1,0 +1,36 @@
+name: Warhammer
+display_name: Warhammer Theme
+version: 1.0.0
+author:
+  name: "Your Name"
+  email: "your.email@example.com"
+  url: "https://yourwebsite.com"
+
+meta:
+  compatibility:
+    from: 1.7.0.0
+    to: ~
+
+global_settings:
+  configuration:
+    PS_IMAGE_QUALITY: png
+  modules:
+    to_enable:
+      - ps_mainmenu
+      - ps_searchbar
+      - ps_featuredproducts
+  hooks:
+    modules_to_hook:
+      displayTop:
+        - ps_mainmenu
+      displayNav:
+        - ps_searchbar
+
+theme_settings:
+  default_layout: layout-full-width
+
+dependencies:
+  modules:
+    - ps_mainmenu
+    - ps_searchbar
+    - ps_featuredproducts

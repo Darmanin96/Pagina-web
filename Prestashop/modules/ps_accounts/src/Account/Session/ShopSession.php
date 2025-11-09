@@ -20,101 +20,108 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateException;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
-use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2ServerException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
 class ShopSession extends Session implements SessionInterface
 {
-    /**
-     * @var CommandBus
-     */
-    protected $commandBus;
-
     /**
      * @var ConfigurationRepository
      */
     protected $configurationRepository;
 
     /**
-     * @var ShopProvider
+     * @var OAuth2Service
      */
-    protected $oauth2ClientProvider;
+    protected $oAuth2Service;
 
     /**
-     * @var LinkShop
+     * @var string
      */
-    protected $linkShop;
+    protected $tokenAudience;
 
     /**
      * @param ConfigurationRepository $configurationRepository
-     * @param ShopProvider $oauth2ClientProvider
-     * @param CommandBus $commandBus
+     * @param OAuth2Service $oAuth2Service
+     * @param string $tokenAudience
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        ShopProvider $oauth2ClientProvider,
-        LinkShop $linkShop,
-        CommandBus $commandBus
+        OAuth2Service $oAuth2Service,
+        $tokenAudience
     ) {
+        parent::__construct();
+
         $this->configurationRepository = $configurationRepository;
-        $this->oauth2ClientProvider = $oauth2ClientProvider;
-        $this->linkShop = $linkShop;
-        $this->commandBus = $commandBus;
+        $this->oAuth2Service = $oAuth2Service;
+        $this->tokenAudience = $tokenAudience;
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getOrRefreshToken($forceRefresh = false)
-    {
-        $token = parent::getOrRefreshToken($forceRefresh);
-
-        \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
-
-        return $token;
-    }
-
-    /**
-     * @param string $refreshToken
+     * @param bool $forceRefresh
+     * @param bool $throw
+     * @param array|null $scope
+     * @param array|null $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function refreshToken($refreshToken = null)
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = null, array $audience = null)
+    {
+        if ($scope === null) {
+            $scope = ($this->getStatusManager()->identityVerified() ? [
+                'shop.verified',
+            ] : []);
+        }
+
+        if ($audience === null) {
+            $audience = [
+                'store/' . $this->getStatusManager()->getCloudShopId(),
+                $this->tokenAudience,
+            ];
+        }
+
+        return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+    }
+
+    /**
+     * @param string $refreshToken
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
-            $this->assertAssociationState();
-            $shopUuid = $this->getShopUuid();
-            $accessToken = $this->getAccessToken($shopUuid);
+            try {
+                $accessToken = $this->getAccessToken($scope, $audience);
+            } catch (OAuth2ServerException $e) {
+                $accessToken = $this->fallbackRefresh($e, 'shop.verified', $scope, $audience);
+            }
 
-            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
             $this->setToken(
-                $accessToken->getToken(),
-                $accessToken->getRefreshToken()
+                $accessToken->access_token,
+                $accessToken->refresh_token
             );
 
-            return $this->getToken();
-        } catch (InconsistentAssociationStateException $e) {
-            $this->commandBus->handle(new UnlinkShopCommand(
-                $this->configurationRepository->getShopId(),
-                $e->getMessage()
-            ));
-        } catch (IdentityProviderException $e) {
-        } catch (\Error $e) {
+            $token = $this->getToken();
+
+            \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
+
+            return $token;
+        } catch (OAuth2Exception $e) {
         } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
         throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());
     }
@@ -147,45 +154,43 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param string $shopUid
+     * @param array $scope
+     * @param array $audience
      *
-     * @return AccessToken|AccessTokenInterface
+     * @return AccessToken
      *
-     * @throws IdentityProviderException
+     * @throws OAuth2Exception
      */
-    protected function getAccessToken($shopUid)
+    protected function getAccessToken(array $scope = [], array $audience = [])
     {
-        $audience = [
-            'shop_' . $shopUid,
-            //'another.audience'
-        ];
-        $token = $this->oauth2ClientProvider->getAccessToken(new ClientCredentials(), [
-            //'scope' => 'read.all write.all',
-            'audience' => implode(' ', $audience),
-        ]);
-        Logger::getInstance()->debug(__METHOD__ . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
-
-        return $token;
+        return $this->oAuth2Service->getAccessTokenByClientCredentials($scope, $audience);
     }
 
     /**
-     * @return string
-     */
-    private function getShopUuid()
-    {
-        return $this->linkShop->getShopUuid();
-    }
-
-    /**
-     * @throws InconsistentAssociationStateException
+     * @param OAuth2ServerException $e
+     * @param string $filterScope
+     * @param array $scope
+     * @param array $audience
      *
-     * @return void
+     * @return AccessToken
+     *
+     * @throws OAuth2Exception
      */
-    public function assertAssociationState()
+    protected function fallbackRefresh($e, $filterScope, array $scope, array $audience)
     {
-        if ($this->linkShop->exists() &&
-            !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
-            throw new InconsistentAssociationStateException('Invalid OAuth2 client');
+        if ($e->getErrorCode() == OAuth2ServerException::ERROR_INVALID_SCOPE &&
+            in_array($filterScope, $scope) &&
+            str_contains($e->getMessage(), $filterScope)
+        ) {
+            $this->getStatusManager()->setIsVerified(false);
+            $this->resetRefreshTokenErrors();
+            $accessToken = $this->getAccessToken(array_filter($scope, function ($scp) use ($filterScope) {
+                return $scp !== $filterScope;
+            }), $audience);
+        } else {
+            throw $e;
         }
+
+        return $accessToken;
     }
 }

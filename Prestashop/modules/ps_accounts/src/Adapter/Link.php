@@ -39,6 +39,10 @@ class Link
      */
     private $link;
 
+    /**
+     * @param ShopContext $shopContext
+     * @param \Link|null $link
+     */
     public function __construct(
         ShopContext $shopContext,
         \Link $link = null
@@ -46,9 +50,7 @@ class Link
         if (null === $link) {
             $link = new \Link();
         }
-
         $this->shopContext = $shopContext;
-
         $this->link = $link;
     }
 
@@ -59,12 +61,11 @@ class Link
      * @param bool $withToken include or not the token in the url
      * @param array $sfRouteParams
      * @param array $params
+     * @param int|null $shopId generate uri for a specific multishop id
      *
      * @return string
-     *
-     * @throws \PrestaShopException
      */
-    public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
+    public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [], $shopId = null)
     {
         // Cannot generate admin link from front
         if (!defined('_PS_ADMIN_DIR_')) {
@@ -72,14 +73,77 @@ class Link
         }
 
         if ($this->shopContext->isShop17()) {
-            return $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
+            $uri = $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
+        } else {
+            $uri = $this->getAdminLink16($controller, $withToken, $params);
         }
+
+        if (!$withToken) {
+            // FIXME: getAdminLink still adds the token (sometimes)
+            $uri = preg_replace('/&_token=[^&]*/', '', $uri);
+        }
+
+        if ($shopId) {
+            $uri = $this->fixVirtualUri($uri, $shopId);
+        }
+
+        return $uri;
+    }
+
+    /**
+     * @param int|null $shopId
+     * @param bool|null $ssl
+     * @param bool $relativeProtocol
+     *
+     * @return string
+     */
+    public function getAdminBaseLink($shopId = null, $ssl = null, $relativeProtocol = false)
+    {
+        /* @phpstan-ignore-next-line */
+        if (method_exists($this->link, 'getAdminBaseLink')) {
+            return $this->link->getAdminBaseLink($shopId, $ssl, $relativeProtocol);
+        } else {
+            return $this->getAdminBaseLink16($shopId, $ssl, $relativeProtocol);
+        }
+    }
+
+    /**
+     * @param string $controller
+     * @param bool $withToken
+     * @param array $params
+     * @param int $shopId
+     *
+     * @return string
+     */
+    public function getAdminLink16($controller, $withToken, array $params, $shopId = null)
+    {
         $paramsAsString = '';
         foreach ($params as $key => $value) {
             $paramsAsString .= "&$key=$value";
         }
 
-        return \Tools::getShopDomainSsl(true) . __PS_BASE_URI__ . basename(_PS_ADMIN_DIR_) . '/' . $this->link->getAdminLink($controller, $withToken) . $paramsAsString;
+        return $this->getAdminBaseLink16($shopId) .
+            basename(_PS_ADMIN_DIR_) . '/' . // admin path
+            $this->link->getAdminLink($controller, $withToken) .
+            $paramsAsString;
+    }
+
+    /**
+     * @param int|null $shopId
+     * @param bool|null $ssl
+     * @param bool $relativeProtocol
+     *
+     * @return string
+     */
+    public function getAdminBaseLink16($shopId = null, $ssl = null, $relativeProtocol = false)
+    {
+        $path = __PS_BASE_URI__; // physical + virtual
+        if ($shopId) {
+            $shop = new \Shop($shopId);
+            $path = $shop->physical_uri . $shop->virtual_uri;
+        }
+
+        return \Tools::getShopDomainSsl(true) . $path;
     }
 
     /**
@@ -91,32 +155,73 @@ class Link
     }
 
     /**
-     * Adapter to get adminLink with custom domain
-     *
-     * @param string $sslDomain shop ssl domain
-     * @param string $domain shop domain
-     * @param string $controller controller name
-     * @param bool $withToken include or not the token in the url
-     * @param array $sfRouteParams
-     * @param array $params
+     * @param bool $withToken
      *
      * @return string
-     *
-     * @throws \PrestaShopException
      */
-    public function getAdminLinkWithCustomDomain($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
+    public function getDashboardLink($withToken = false)
     {
-        $boBaseUrl = $this->getAdminLink($controller, $withToken, $sfRouteParams, $params);
-        $parsedUrl = parse_url($boBaseUrl);
+        return $this->getAdminLink('AdminDashboard', false);
+    }
 
-        if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme'])) {
-            return str_replace(
-                $parsedUrl['host'],
-                $parsedUrl['scheme'] === 'http' ? $domain : $sslDomain,
-                $boBaseUrl
-            );
-        }
+    /**
+     * @param int $shopId
+     * @param bool $withToken
+     * @param string $moduleName
+     *
+     * @return string
+     */
+    public function getModuleContentsLink($shopId, $withToken = false, $moduleName = 'ps_accounts')
+    {
+        return $this->getAdminLink(
+            'AdminModules',
+            $withToken,
+            [],
+            [
+                'configure' => $moduleName,
+                'setShopContext' => 's-' . $shopId,
+            ]
+        );
+    }
 
-        return $boBaseUrl;
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function cleanSlashes($link)
+    {
+        $link = preg_replace('@^(http|https)://@', '\1:SCHEME_SLASHES', $link);
+        $link = preg_replace('/\/+/', '/', $link);
+
+        return preg_replace('@^(http|https):SCHEME_SLASHES@', '\1://', $link);
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function getTrailingSlash($link)
+    {
+        return preg_match('/\/(\?|$)/', $link) ? '/' : '';
+    }
+
+    /**
+     * @param string $uri
+     * @param int $shopId
+     *
+     * @return string
+     */
+    private function fixVirtualUri($uri, $shopId)
+    {
+        $shop = new \Shop($shopId);
+
+        return preg_replace(
+            '@^(https://[^/]+)' . $shop->physical_uri . '.*' . basename(_PS_ADMIN_DIR_) . '@',
+            //'$1' . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
+            'https://' . $shop->domain_ssl . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
+            $uri
+        );
     }
 }

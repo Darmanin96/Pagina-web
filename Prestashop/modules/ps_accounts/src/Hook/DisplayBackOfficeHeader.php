@@ -21,21 +21,37 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class DisplayBackOfficeHeader extends Hook
 {
     /**
-     * @return void
+     * @return string
      *
-     * @throws IdentityProviderException
      * @throws Exception
      */
     public function execute(array $params = [])
     {
-        $this->module->getOauth2Middleware()->execute();
+        try {
+            if (preg_match('/controller=AdminModules/', $_SERVER['REQUEST_URI']) &&
+                preg_match('/configure=ps_accounts/', $_SERVER['REQUEST_URI']) ||
+                preg_match('@modules/manage/action/configure/ps_accounts@', $_SERVER['REQUEST_URI'])
+            ) {
+                return '';
+            }
 
-        $this->commandBus->handle(new UpgradeModuleMultiCommand());
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
+
+            $this->module->getContext()->controller->addJs(
+                $this->module->getLocalPath() . 'views/js/notifications.js' .
+                '?ctx=' . urlencode($psAccountsService->getAdminAjaxUrl() . '&action=getNotifications') .
+                '&v=' . urlencode($this->module->version)
+            );
+        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+        }
+
+        return '';
     }
 }

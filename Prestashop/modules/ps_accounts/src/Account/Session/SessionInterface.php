@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 interface SessionInterface
 {
@@ -42,14 +42,18 @@ interface SessionInterface
      * Refreshes and saves refreshed token
      *
      * @param string|null $refreshToken
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function refreshToken($refreshToken = null);
+    public function refreshToken($refreshToken = null, array $scope = [], array $audience = []);
 
     /**
+     * @deprecated use getValidToken instead
+     *
      * Get or refreshes and saves token
      *
      * @param bool $forceRefresh
@@ -57,6 +61,20 @@ interface SessionInterface
      * @return Token
      */
     public function getOrRefreshToken($forceRefresh = false);
+
+    /**
+     * Get or refreshes and saves token
+     *
+     * @param bool $forceRefresh
+     * @param bool $throw
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = []);
 
     /**
      * @return void

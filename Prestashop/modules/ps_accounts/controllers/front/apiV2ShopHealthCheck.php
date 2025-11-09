@@ -18,27 +18,29 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2ShopRestController;
+use PrestaShop\Module\PsAccounts\Http\Request\ShopHealthCheckRequest;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
+class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2ShopRestController
 {
     /**
-     * @var LinkShop
+     * @var StatusManager
      */
-    private $linkShop;
+    private $statusManager;
 
     /**
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
@@ -63,14 +65,34 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private $psAccountsService;
 
     /**
-     * @var AccountsClient
+     * @var AccountsService
      */
-    private $accountsClient;
+    private $accountsService;
 
     /**
-     * @var ShopProvider
+     * @var OAuth2Service
      */
-    private $shopProvider;
+    private $oauth2Service;
+
+    /**
+     * @return array
+     */
+    public function getScope()
+    {
+        return [
+            'shop.health',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getAudience()
+    {
+        return [
+            'ps_accounts/' . $this->statusManager->getCloudShopId(),
+        ];
+    }
 
     public function __construct()
     {
@@ -78,15 +100,18 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
 
         // public healthcheck
         $this->authenticated = false;
+        if ($this->getRequestHeader(self::HEADER_AUTHORIZATION) !== null) {
+            $this->authenticated = true;
+        }
 
-        $this->linkShop = $this->module->getService(LinkShop::class);
-        $this->oauth2Client = $this->module->getService(Oauth2Client::class);
+        $this->statusManager = $this->module->getService(StatusManager::class);
+        $this->oauth2Client = $this->module->getService(OAuth2Client::class);
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
-        $this->accountsClient = $this->module->getService(AccountsClient::class);
+        $this->accountsService = $this->module->getService(AccountsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
-        $this->shopProvider = $this->module->getService(ShopProvider::class);
+        $this->oauth2Service = $this->module->getService(OAuth2Service::class);
     }
 
     /**
@@ -96,37 +121,39 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      * @param ShopHealthCheckRequest $request
      *
      * @return array
-     *
-     * @throws Exception
      */
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
-        // refreshing one of firebase tokens will trigger a global refresh
-        $firebaseShopToken = $request->autoheal ?
-            $this->firebaseShopSession->getOrRefreshToken() :
-            $this->firebaseShopSession->getToken();
+//        $this->assertAudience([
+//            'ps_accounts/' . $this->shopIdentity->getShopUuid(),
+//        ]);
+//        $this->assertScope([
+//            'shop.health',
+//        ]);
+
+        if ($request->autoheal) {
+            try {
+                $this->firebaseShopSession->getValidToken();
+                $this->firebaseOwnerSession->getValidToken();
+            } catch (RefreshTokenException $e) {
+            }
+        }
+
+        $firebaseShopToken = $this->firebaseShopSession->getToken();
         $firebaseOwnerToken = $this->firebaseOwnerSession->getToken();
         $shopToken = $this->shopSession->getToken();
 
-//        $privateInfo = [
-//            'shopId' => $shop->id,
-//            'shopBoUri' => '',
-//            'moduleVersion' => Ps_accounts::VERSION,
-//            'psVersion' => _PS_VERSION_,
-//            'phpVersion' => phpversion(),
-//        ];
-
-        return [
+        $healthCheckMessage = [
             'oauth2Client' => $this->oauth2Client->exists(),
-            'shopLinked' => (bool) $this->linkShop->getShopUuid(),
+            'shopLinked' => (bool) $this->statusManager->getCloudShopId(),
             'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
             'oauthToken' => $this->tokenInfos($shopToken),
             'firebaseOwnerToken' => $this->tokenInfos($firebaseOwnerToken),
             'firebaseShopToken' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
             'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
-            'oauthApiConnectivity' => (bool) $this->shopProvider->getWellKnown()->issuer,
-            'accountsApiConnectivity' => $this->accountsApiHealthCheck(),
+            'oauthApiConnectivity' => $this->getOauthApiStatus(),
+            'accountsApiConnectivity' => $this->getAccountsApiStatus(),
             'serverUTC' => time(),
             'mysqlUTC' => $this->getDatabaseTimestamp(),
             'env' => [
@@ -138,6 +165,21 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
                 'checkApiSslCert' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
             ],
         ];
+
+        if ($this->authenticated) {
+            $healthCheckMessage = array_merge($healthCheckMessage, [
+//                'shopId' => $shop->id,
+//                'shopBoUri' => '',
+                'psVersion' => _PS_VERSION_,
+                'moduleVersion' => Ps_accounts::VERSION,
+                'phpVersion' => phpversion(),
+                'cloudShopId' => (string) $this->statusManager->getCloudShopId(),
+                'shopName' => $shop->name,
+                'ownerEmail' => (string) $this->statusManager->getPointOfContactEmail(),
+            ]);
+        }
+
+        return $healthCheckMessage;
     }
 
     /**
@@ -197,11 +239,25 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     /**
      * @return bool
      */
-    private function accountsApiHealthCheck()
+    private function getAccountsApiStatus()
     {
-        $response = $this->accountsClient->healthCheck();
+        $response = $this->accountsService->healthCheck();
 
-        return (bool) $response['status'];
+        return $response->isSuccessful;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getOauthApiStatus()
+    {
+        try {
+            $this->oauth2Service->getWellKnown();
+
+            return true;
+        } catch (OAuth2Exception $e) {
+            return false;
+        }
     }
 
     /**

@@ -20,225 +20,33 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
-use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
-use Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
+/**
+ * @deprecated since v8.0.0 in favor of PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService
+ */
 class AccountsClient
 {
     /**
-     * @var string
+     * @var AccountsService
      */
-    private $apiUrl;
+    protected $accountsService;
 
     /**
-     * @var GuzzleClient
+     * @param AccountsService $accountService
      */
-    private $client;
-
-    /**
-     * @var int
-     */
-    private $defaultTimeout;
-
-    /**
-     * ServicesAccountsClient constructor.
-     *
-     * @param string $apiUrl
-     * @param GuzzleClient|null $client
-     * @param int $defaultTimeout
-     *
-     * @throws \Exception
-     */
-    public function __construct(
-                     $apiUrl,
-        GuzzleClient $client = null,
-                     $defaultTimeout = 20
-    ) {
-        $this->apiUrl = $apiUrl;
-        $this->client = $client;
-        $this->defaultTimeout = $defaultTimeout;
-    }
-
-    /**
-     * @return GuzzleClient
-     */
-    private function getClient()
+    public function __construct(AccountsService $accountService)
     {
-        if (null === $this->client) {
-            $this->client = (new GuzzleClientFactory())->create([
-                'name' => static::class,
-                'base_uri' => $this->apiUrl,
-                'headers' => $this->getHeaders(),
-                'timeout' => $this->defaultTimeout,
-            ]);
-        }
-
-        return $this->client;
+        $this->accountsService = $accountService;
     }
 
     /**
-     * @param array $additionalHeaders
-     *
-     * @return array
-     */
-    private function getHeaders($additionalHeaders = [])
-    {
-        return array_merge([
-            'Accept' => 'application/json',
-            'X-Module-Version' => \Ps_accounts::VERSION,
-            'X-Prestashop-Version' => _PS_VERSION_,
-            'X-Request-ID' => Uuid::uuid4()->toString(),
-        ], $additionalHeaders);
-    }
-
-    /**
-     * @param string $accessToken
-     *
-     * @return array
-     *
-     * $response['body']['userToken']
-     * $response['body']['shopToken']
-     */
-    public function firebaseTokens($accessToken)
-    {
-        $this->getClient()->setRoute('v2/shop/firebase/tokens');
-
-        return $this->getClient()->get([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $accessToken,
-            ]),
-        ]);
-    }
-
-    /**
-     * @param string $refreshToken
-     * @param string $shopUuid
-     *
-     * @return array response
-     */
-    public function refreshShopToken($refreshToken, $shopUuid)
-    {
-        $this->getClient()->setRoute('v1/shop/token/refresh');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'X-Shop-Id' => $shopUuid,
-            ]),
-            'json' => [
-                'token' => $refreshToken,
-            ],
-        ]);
-    }
-
-    /**
-     * @param string $ownerUid
-     * @param string $shopUid
-     * @param string $ownerToken
-     *
-     * @return array
-     */
-    public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
-    {
-        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
-
-        return $this->getClient()->delete([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $shopUid,
-            ]),
-        ]);
-    }
-
-    /**
-     * @param string $shopUid
-     * @param string $shopToken
-     * @param array $payload
-     *
-     * @return array
-     */
-    public function reonboardShop($shopUid, $shopToken, $payload)
-    {
-        $this->getClient()->setRoute('v1/shop/' . $shopUid . '/reonboard');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $shopUid,
-            ]),
-            'json' => $payload,
-        ]);
-    }
-
-    /**
-     * @param string $ownerUid
-     * @param string $shopUid
-     * @param string $ownerToken
-     * @param UpdateShop $shop
-     *
-     * @return array
-     */
-    public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
-    {
-        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
-
-        return $this->getClient()->patch([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $shopUid,
-            ]),
-            'json' => $shop->jsonSerialize(),
-        ]);
-    }
-
-    /**
-     * @param string $shopUid
-     * @param string $shopToken
-     * @param UpgradeModule $data
-     *
-     * @return array
-     */
-    public function upgradeShopModule($shopUid, $shopToken, UpgradeModule $data)
-    {
-        $this->getClient()->setRoute('/v2/shop/module/update');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $shopUid,
-            ]),
-            'json' => $data->jsonSerialize(),
-        ]);
-    }
-
-    /**
-     * @deprecated
-     *
      * @param string $idToken
      *
-     * @return array response
+     * @return array
      */
     public function verifyToken($idToken)
     {
-        $this->getClient()->setRoute('/v1/shop/token/verify');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders(),
-            'json' => [
-                'token' => $idToken,
-            ],
-        ]);
-    }
-
-    /**
-     * @return array
-     */
-    public function healthCheck()
-    {
-        $this->getClient()->setRoute('/healthcheck');
-
-        return $this->getClient()->get();
+        return $this->accountsService->verifyToken($idToken)->toLegacy();
     }
 }

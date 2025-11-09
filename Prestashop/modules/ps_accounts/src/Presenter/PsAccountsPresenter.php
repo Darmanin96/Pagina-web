@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -39,9 +39,9 @@ class PsAccountsPresenter implements PresenterInterface
     protected $shopProvider;
 
     /**
-     * @var LinkShop
+     * @var StatusManager
      */
-    protected $linkShop;
+    protected $statusManager;
 
     /**
      * @var ConfigurationRepository
@@ -75,10 +75,11 @@ class PsAccountsPresenter implements PresenterInterface
 
         $this->psAccountsService = $module->getService(PsAccountsService::class);
         $this->shopProvider = $module->getService(ShopProvider::class);
-        $this->linkShop = $module->getService(LinkShop::class);
+        $this->statusManager = $module->getService(StatusManager::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
 
+        // FIXME: find a better place for this
         $this->configuration->fixMultiShopConfig();
     }
 
@@ -95,10 +96,13 @@ class PsAccountsPresenter implements PresenterInterface
 
         $moduleName = (string) $this->module->name;
 
-        $unlinkedShops = $this->shopProvider->getUnlinkedShops(
-            $psxName,
-            $shopContext->getContext()->employee->id
-        );
+        $employee = $shopContext->getContext()->employee;
+        /* @phpstan-ignore-next-line */
+        if (!$employee) {
+            $employee = new \Employee();
+        }
+
+        $unlinkedShops = $this->shopProvider->getUnlinkedShops($psxName, (int) $employee->id);
         $shopBase64 = base64_encode(
             (string) json_encode(array_values($unlinkedShops))
         );
@@ -136,12 +140,12 @@ class PsAccountsPresenter implements PresenterInterface
                         'uuid' => $this->psAccountsService->getUserUuid() ?: null,
                         'email' => $this->psAccountsService->getEmail() ?: null,
                         'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
-                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                        'isSuperAdmin' => $employee->isSuperAdmin(),
                     ],
                     'backendUser' => [
-                        'email' => $shopContext->getContext()->employee->email,
-                        'employeeId' => $shopContext->getContext()->employee->id,
-                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                        'email' => $employee->email,
+                        'employeeId' => $employee->id,
+                        'isSuperAdmin' => $employee->isSuperAdmin(),
                     ],
                     'currentShop' => $this->shopProvider->getCurrentShop($psxName),
                     'isShopContext' => $shopContext->isShopContext(),
@@ -159,6 +163,8 @@ class PsAccountsPresenter implements PresenterInterface
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
+
+                    'component_params_init' => $this->psAccountsService->getComponentInitParams($psxName),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
