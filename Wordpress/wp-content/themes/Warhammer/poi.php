@@ -14,6 +14,7 @@ get_header();
         </div>
     </header>
     <br>
+    <div class="lore-toc">
     <nav>
         <ul>
             <li><a href="#edad-oro">Era Oscura de la Tecnología</a></li>
@@ -24,6 +25,7 @@ get_header();
             <li><a href="#nacimiento-desgarro">Nacimiento del Gran Desgarro</a></li>
         </ul>
     </nav>
+    </div>
     <br>
     <div>
         <section class="lore-figure hero" style="background-image:url('<?php echo get_template_directory_uri(); ?>/assets/img/edad-oscura.jpg');" id="edad-oro-img">
