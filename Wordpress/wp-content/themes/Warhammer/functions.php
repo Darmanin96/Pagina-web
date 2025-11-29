@@ -9,27 +9,7 @@ function warhammer_setup() {
 }
 
 function video_scroll(){
-    ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("Script loaded");
-            const video = document.querySelector('#Warhammer-40k');
-            if (video) {
-                window.addEventListener('scroll', function() {
-                    const scrollPosition = window.scrollY;
-                    const videoHeight = window.innerHeight;
-
-                    if (scrollPosition > videoHeight * 0.3) {
-                        const opacity = 1 - (scrollPosition - videoHeight * 0.3) / (videoHeight * 0.7);
-                        video.style.opacity = Math.max(opacity, 0);
-                    } else {
-                        video.style.opacity = 1;
-                    }
-                });
-            }
-        });
-    </script>
-    <?php
+    wp_enqueue_script('warhammer-video-scroll', get_template_directory_uri() . '/assets/js/font-page.js', array(), '1.0.0', true);
 }
 
 function fronts_google(){
@@ -46,9 +26,17 @@ function css_lore() {
     }
 }
 
+function css_sobre_nosotros() {
+    if (is_page_template('sobreNosotros.php')) {
+        wp_enqueue_style('sobre-nosotros', get_template_directory_uri() . '/css/sobre-nosotros.css', array(), '1.0.0');
+    }
+}
+
 add_action('after_setup_theme', 'warhammer_setup');
 add_action('wp_footer', 'video_scroll');
 add_action('wp_enqueue_scripts', 'fronts_google');
 add_action('wp_enqueue_scripts', 'estilos_personalizados');
 add_action('wp_enqueue_scripts', 'css_lore');
+add_action('wp_enqueue_scripts', 'css_sobre_nosotros');
+
 ?>

@@ -494,6 +494,45 @@ if ( ! class_exists( 'Astra_Sites' ) ) :
 			if ( 'ai' === get_option( 'astra_sites_current_import_template_type' ) ) {
 				return $postdata;
 			}
+
+			// Handle Spectra Blocks v3 content during template import.
+			// Goal:
+			// - If Spectra Blocks v3 is active in the demo template, we need to avoid wp_slash() on post content because it breaks block attributes.
+			// - Also, decode any Unicode sequences (\uXXXX) to UTF-8 characters.
+
+			// Get template/demo content if ST Importer is available.
+			$template_data = class_exists( '\STImporter\Importer\ST_Importer_File_System' )
+				? \STImporter\Importer\ST_Importer_File_System::get_instance()->get_demo_content()
+				: array();
+
+			if ( ! empty( $postdata['post_content'] ) && ! empty( $template_data ) && is_array( $template_data ) ) {
+
+				// Get the Spectra Blocks version info and class list.
+				$spectra_blocks_version = isset( $template_data['spectra-blocks-ver'] ) ? $template_data['spectra-blocks-ver'] : array();
+				$class_list             = isset( $template_data['class_list'] ) ? $template_data['class_list'] : array();
+
+				// Check if Spectra Blocks v3 is active in this template.
+				if ( ! empty( $spectra_blocks_version ) && in_array( 'spectra-blocks-ver-v3', $class_list, true ) ) {
+
+					// Define allowed symbols to decode.
+					$allowed = array( '-', '&', '<', '>' );
+
+					$postdata['post_content'] = preg_replace_callback(
+						'/(?:\s|\\\\)?u([0-9a-fA-F]{4})/',
+						function ( $matches ) use ( $allowed ) {
+							$char = mb_convert_encoding( pack( 'H*', $matches[1] ), 'UTF-8', 'UCS-2BE' );
+
+							// Return char only if in allowed list, else keep original escape.
+							return in_array( $char, $allowed, true ) ? $char : $matches[0];
+						},
+						$postdata['post_content']
+					);
+
+					// Return post data without wp_slash to preserve block JSON integrity.
+					return $postdata;
+				}
+			}
+
 			return wp_slash( $postdata );
 		}
 
@@ -1891,7 +1930,16 @@ if ( ! class_exists( 'Astra_Sites' ) ) :
 					'userDetails'          => array(
 						'first_name' => get_user_meta( get_current_user_ID(), 'first_name', true ),
 						'last_name'  => get_user_meta( get_current_user_ID(), 'last_name', true ),
-						'email'     => wp_get_current_user()->user_email,
+						'email'      => wp_get_current_user()->user_email,
+					),
+
+					// Spectra Blocks Vars.
+					'spectraBlocks'        => apply_filters(
+						'astra_sites_spectra_blocks_vars',
+						array(
+							'selectorEnabled' => self::should_display_spectra_blocks_version_selector(),
+							'version'         => self::get_spectra_blocks_version(),
+						)
 					),
 				)
 			);
@@ -3006,6 +3054,95 @@ if ( ! class_exists( 'Astra_Sites' ) ) :
 JS;
 
 			wp_add_inline_script( 'common', $script );
+		}
+
+		/**
+		 * Should display Spectra Blocks version selector
+		 *
+		 * @since 4.4.41
+		 *
+		 * @return bool
+		 */
+		public static function should_display_spectra_blocks_version_selector() {
+			$spectra_blocks_version = self::get_spectra_blocks_version();
+			$legacy_library_enabled = get_option( 'uag_enable_legacy_design_library', 'disabled' ) === 'enabled';
+			$v2_blocks_enabled      = get_option( 'register-v2-blocks', 'no' ) === 'yes';
+
+			// Display selector only if Spectra v3 is enabled and either legacy library or v2 blocks are enabled.
+			$flag = 'v3' === $spectra_blocks_version && ( $legacy_library_enabled || $v2_blocks_enabled );
+
+			/**
+			 * Filter to modify the display of Spectra Blocks version selector.
+			 *
+			 * @param bool $flag Whether to display the version selector.
+			 *
+			 * @since 4.4.41
+			 */
+			return apply_filters( 'astra_sites_display_spectra_blocks_version_selector', $flag );
+		}
+
+		/**
+		 * Get Spectra Blocks Version
+		 *
+		 * Determines the version of the Spectra Blocks plugin (v2 or v3) based on its activation status and defined constants.
+		 *
+		 * @since 4.4.41
+		 *
+		 * @return string Returns 'v2' for Spectra Blocks version 2, 'v3' for version 3, or an empty string if not installed.
+		 */
+		public static function get_spectra_blocks_version() {
+			$spectra_init = 'ultimate-addons-for-gutenberg/ultimate-addons-for-gutenberg.php';
+
+			// If spectra is active, check for Spectra 3 constant to determine version.
+			if ( is_plugin_active( $spectra_init ) ) {
+				return defined( 'SPECTRA_3_FILE' ) ? 'v3' : 'v2';
+			}
+
+			// Load plugin.php functions if not already available.
+			if ( ! function_exists( 'get_plugins' ) ) {
+				if ( ! defined( 'ABSPATH' ) ) {
+					return '';
+				}
+				require_once ABSPATH . '/wp-admin/includes/plugin.php';
+			}
+
+			$all_plugins = get_plugins();
+
+			// If spectra is not installed, consider fresh install.
+			if ( isset( $all_plugins[ $spectra_init ] ) ) {
+				$spectra_plugin  = $all_plugins[ $spectra_init ];
+				$spectra_version = isset( $spectra_plugin['Version'] ) ? $spectra_plugin['Version'] : '';
+				$spectra_version = preg_replace_callback(
+					'/-.+$/',
+					function() {
+						return '';
+					},
+					$spectra_version
+				);
+
+				// If spectra version is found, check version to determine v2 or v3.
+				if ( $spectra_version ) {
+					return version_compare( $spectra_version, '3.0.0', '<' ) ? 'v2' : 'v3';
+				}
+			}
+
+			// Default to v2 if version info is unavailable. will be updated to v3 after stable Spectra v3 release.
+			return 'v2';
+		}
+
+		/**
+		 * Get spectra blocks version for API requests.
+		 *
+		 * @since 4.4.41
+		 * @return string
+		 */
+		public static function get_rest_spectra_blocks_version() {
+			// Get spectra blocks version.
+			if ( self::should_display_spectra_blocks_version_selector() ) {
+				return 'v2,v3';
+			}
+ 
+			return self::get_spectra_blocks_version();
 		}
 	}
 

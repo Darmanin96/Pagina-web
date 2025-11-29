@@ -44,6 +44,22 @@ class Sync_Library {
 	}
 
 	/**
+	 * Get spectra blocks version for API requests.
+	 *
+	 * @since 2.4.14
+	 * @return string
+	 */
+	public function get_spectra_blocks_version() {
+		$spectra_blocks_ver = 'v2';
+		if ( Plugin::instance()->should_show_version_toggle() ) {
+			$spectra_blocks_ver = 'v2,v3';
+		} else {
+			$spectra_blocks_ver = Plugin::instance()->get_spectra_version();
+		}
+		return $spectra_blocks_ver;
+	}
+
+	/**
 	 * Get Custimizer CSS.
 	 *
 	 * @return void
@@ -662,10 +678,11 @@ class Sync_Library {
 		$query_args = apply_filters(
 			'ast_block_templates_blocks_args',
 			array(
-				'page_builder' => 'gutenberg',
-				'per_page'     => 30,
-				'page'         => $page,
-				'wireframe'    => 'yes',
+				'page_builder'       => 'gutenberg',
+				'per_page'           => 30,
+				'page'               => $page,
+				'wireframe'          => 'yes',
+				'spectra-blocks-ver' => $this->get_spectra_blocks_version(),
 			)
 		);
 
@@ -763,9 +780,10 @@ class Sync_Library {
 		$query_args = apply_filters(
 			'ast_block_templates_get_sites_and_pages_args',
 			array(
-				'per_page'     => 30,
-				'page'         => $page,
-				'page-builder' => 'gutenberg',
+				'per_page'           => 30,
+				'page'               => $page,
+				'page-builder'       => 'gutenberg',
+				'spectra-blocks-ver' => $this->get_spectra_blocks_version(),
 			)
 		);
 

@@ -753,7 +753,8 @@ if ( ! class_exists( 'Astra_Sites_Batch_Processing' ) ) :
 			update_site_option( 'astra-sites-batch-status-string', 'Getting Total Pages' );
 
 			$api_args = array(
-				'timeout' => 60,
+				'timeout'            => 60,
+				'spectra-blocks-ver' => Astra_Sites::get_rest_spectra_blocks_version(),
 			);
 
 			$response = wp_safe_remote_get( trailingslashit( Astra_Sites::get_instance()->get_api_domain() ) . 'wp-json/astra-sites/v1/get-total-pages/?per_page=15', $api_args );

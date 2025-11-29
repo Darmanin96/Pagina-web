@@ -461,7 +461,7 @@ class Ai_Builder_Plugin_Loader {
 						$team_name,
 					),
 					'upgrade_text'      => __( 'Unlock Full Power', 'astra-sites' ),
-					'upgrade_url'       => 'https://app.zipwp.com/founders-deal?source=starter-templates',
+					'upgrade_url'       => 'https://app.zipwp.com/st-pricing?source=starter-templates',
 					'contact_url'       => $support_link,
 					'contact_text'      => __( 'Contact Support', 'astra-sites' ),
 				)
@@ -476,6 +476,7 @@ class Ai_Builder_Plugin_Loader {
 			'isBeaverBuilderDisabled'  => get_option( 'st-beaver-builder-flag' ) || ! self::is_legacy_beaver_builder_enabled(),
 			'supportedPageBuilders'    => apply_filters( 'ai_builder_supported_page_builders', array( 'block-editor', 'elementor' ) ),
 			'hideCreditsWarningModal'  => apply_filters( 'ai_builder_hide_credits_warning_modal', false ), // Added for white label AI Builder.
+			'imagesEngine'             => Helper::get_images_engine(),
 		);
 	}
 

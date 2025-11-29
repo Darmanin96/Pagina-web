@@ -239,6 +239,9 @@ export const initialState = {
 	pageBuilderCache: {
 		timestamp: null,
 	},
+
+	// Spectra Blocks Version
+	spectraBlocksVersion: astraSitesVars?.spectraBlocks?.version || 'v2',
 };
 
 const reducer = ( state = initialState, { type, ...rest } ) => {
