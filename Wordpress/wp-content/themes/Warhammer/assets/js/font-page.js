@@ -18,7 +18,17 @@ function video_scroll(){
         });
 }
 
-function abrirPanelCaos($faccion){
+function abrirPanelCaos(event) {
+    event.stopPropagation(); 
     
-
+    const card = event.target.closest('.caos-card');
+    const allCards = document.querySelectorAll('.caos-card');
+    
+    allCards.forEach(c => {
+        if (c !== card) {
+            c.classList.remove('open');
+        }
+    });
+    
+    card.classList.toggle('open');
 }

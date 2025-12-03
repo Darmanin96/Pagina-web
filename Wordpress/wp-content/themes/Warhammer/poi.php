@@ -17,7 +17,7 @@ get_header();
     <div class="lore-toc">
     <nav>
         <ul>
-            <li><a href="#edad-oro">Era Oscura de la Tecnología</a></li>
+            <li><a href="#indice-oscuro">Era Oscura de la Tecnología</a></li>
             <li><a href="#gran-cruzada">La Gran Cruzada</a></li>
             <li><a href="#herejia-horus">Herejía de Horus</a></li>
             <li><a href="#guerra-behemoth">Guerra del Behemoth</a></li>
@@ -28,8 +28,8 @@ get_header();
     </div>
     <br>
     <div>
-        <section class="lore-figure hero" style="background-image:url('<?php echo get_template_directory_uri(); ?>/assets/img/edad-oscura.jpg');" id="edad-oro-img">
-            <div class="caption">La Era Oscura de la Tecnología</div>
+        <section class="lore-figure hero" id="indice-oscuro" style="background-image:url('<?php echo get_template_directory_uri(); ?>/assets/img/edad-oscura.jpg');" id="edad-oro-img">
+            <div class="caption" >La Era Oscura de la Tecnología</div>
         </section>
 
         <section id="edad-oro">
@@ -64,7 +64,6 @@ get_header();
         </section>
 
         <section id="gran-cruzada">
-            <h2>La Gran Cruzada</h2>
             <div>
                 <article>
                     <h3>El Emperador se Revela</h3>
@@ -99,7 +98,6 @@ get_header();
         </section>
 
         <section id="herejia-horus">
-            <h2>La Herejía de Horus</h2>
             <div>
                 <article>
                     <h3>La Traición de Horus</h3>
@@ -145,7 +143,6 @@ get_header();
         </section>
 
         <section id="guerra-behemoth">
-            <h2>Guerra del Behemoth</h2>
             <div>
                 <article>
                     <h3>Primera Invasión Tiránida</h3>
@@ -179,7 +176,6 @@ get_header();
         </section>
 
         <section id="caida-cadia">
-            <h2>Caída de Cadia</h2>
             <div>
                 <article>
                     <h3>El Fin del Círculo de Cadia</h3>
@@ -202,7 +198,6 @@ get_header();
         </section>
 
         <section id="nacimiento-desgarro">
-            <h2>Nacimiento del Gran Desgarro</h2>
             <div>
                 <article>
                     <h3>La Cicatriz Warp</h3>

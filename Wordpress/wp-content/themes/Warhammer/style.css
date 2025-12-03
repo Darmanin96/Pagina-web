@@ -56,16 +56,21 @@
   color: #fff;
   min-width: 280px;
   width: 280px;
+  min-height: 420px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.6);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, min-height 0.4s ease;
   cursor: pointer;
   border: 1px solid #333;
   flex-shrink: 0;
+}
+
+.caos-card.open {
+  min-height: 650px;
 }
 
 .caos-card:hover {
@@ -82,14 +87,27 @@
 }
 
 .caos-card-content {
-  padding: 12px 10px;
+  padding: 16px 10px;
   text-align: center;
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
+  min-height: 120px;
+}
+
+.caos-card-content p {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.caos-card.open .caos-card-content p {
+  max-height: 500px;
+  margin-top: 10px;
 }
 
 .caos-card-content h3 {
@@ -386,6 +404,38 @@ body {
   .facciones-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .caos-card {
+    min-width: 240px;
+    width: 240px;
+  }
+
+  .caos-card img {
+    height: 240px;
+  }
+
+  .caos-card-content {
+    min-height: 100px;
+  }
+
+  .caos-card.open {
+    min-height: 580px;
+  }
+
+  .caos-card-content h3 {
+    font-size: 1rem;
+  }
+
+  .caos-card-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .caos-carrusel {
+    gap: 20px;
+    padding: 40px 15px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -415,6 +465,49 @@ body {
   .facciones-grid {
     grid-template-columns: 1fr;
   }
+
+  .caos-card {
+    min-width: 200px;
+    width: 200px;
+    min-height: 380px;
+  }
+
+  .caos-card img {
+    height: 200px;
+  }
+
+  .caos-card-content {
+    min-height: 80px;
+    padding: 12px 8px;
+  }
+
+  .caos-card.open {
+    min-height: 520px;
+  }
+
+  .caos-card-content h3 {
+    font-size: 0.95rem;
+  }
+
+  .caos-card-content p {
+    font-size: 0.8rem;
+  }
+
+  .caos-card-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    margin-top: 6px;
+  }
+
+  .caos-carrusel {
+    gap: 15px;
+    padding: 30px 10px;
+  }
+
+  .facciones-caos {
+    padding: 40px 15px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -424,6 +517,55 @@ body {
 
   .hero-content p {
     font-size: 1rem;
+  }
+
+  .caos-card {
+    min-width: 180px;
+    width: 180px;
+    min-height: 340px;
+  }
+
+  .caos-card img {
+    height: 180px;
+  }
+
+  .caos-card-content {
+    min-height: 60px;
+    padding: 10px 6px;
+  }
+
+  .caos-card.open {
+    min-height: 480px;
+  }
+
+  .caos-card-content h3 {
+    font-size: 0.85rem;
+  }
+
+  .caos-card-content p {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .caos-card-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .caos-carrusel {
+    gap: 10px;
+    padding: 20px 8px;
+  }
+
+  .facciones-caos {
+    padding: 30px 10px;
+  }
+
+  .facciones-caos h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
   }
 }
 
@@ -462,7 +604,6 @@ body {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s ease;
-  border-top: 1px solid #d4af37;
 }
 
 .caos-panel-card h4 {
@@ -487,6 +628,8 @@ body {
   background: #d4af37;
   color: #000;
 }
+
+
 
 
 
