@@ -18,11 +18,11 @@ get_header();
     <nav>
         <ul>
             <li><a href="#indice-oscuro">Era Oscura de la Tecnología</a></li>
-            <li><a href="#gran-cruzada">La Gran Cruzada</a></li>
-            <li><a href="#herejia-horus">Herejía de Horus</a></li>
-            <li><a href="#guerra-behemoth">Guerra del Behemoth</a></li>
-            <li><a href="#caida-cadia">Caída de Cadia</a></li>
-            <li><a href="#nacimiento-desgarro">Nacimiento del Gran Desgarro</a></li>
+            <li><a href="#gran-cruzada-img">La Gran Cruzada</a></li>
+            <li><a href="#heregia-horus-img">Herejía de Horus</a></li>
+            <li><a href="#guerra-behemoth-img">Guerra del Behemoth</a></li>
+            <li><a href="#caida-cadia-img">Caída de Cadia</a></li>
+            <li><a href="#nacimiento-desgarro-img">Nacimiento del Gran Desgarro</a></li>
         </ul>
     </nav>
     </div>

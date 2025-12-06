@@ -27,13 +27,13 @@ get_header();
     </section>
 
     <section class="mis-redes-sociales" aria-labelledby="redes-titulo">
-        <h1 id="redes-titulo">Mis Redes Sociales</h1>
+        <h1 id="redes-titulo">Mis Redes Sociales y CV</h1>
 
         <nav aria-label="Enlaces a redes sociales">
             <div class="redes-sociales">
-                <a href="" target="_blank" rel="noopener noreferrer" aria-label="InfoJobs (abre en nueva pestaña)">
-                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/infojobs.webp' ); ?>"
-                         alt="<?php echo esc_attr( 'InfoJobs' ); ?>"
+                <a href="<?php echo esc_url( get_template_directory_uri() . '/assets/pdf/CV.pdf' ); ?>" download target="_blank" rel="noopener noreferrer" aria-label="Descargar CV (abre en nueva pestaña)">
+                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/cv.png' ); ?>"
+                         alt="<?php echo esc_attr( 'Descargar CV' ); ?>"
                          width="120" height="120" loading="lazy">
                 </a>
 
