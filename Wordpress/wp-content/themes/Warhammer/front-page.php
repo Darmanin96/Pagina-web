@@ -18,7 +18,7 @@
     <div class="facciones-grid">
 
       <article class="faccion faccion-image">
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/astra2.webp" alt="Astra Militarum">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/astra2.webp" alt="Astra Militarum" loading="lazy">
         <div class="faccion-overlay">
           <h3>Astra Militarum</h3>
           <p>El Astra Militarum, también conocido por su antiguo nombre Guardia Imperial, es la fuerza militar humana más numerosa 
@@ -28,7 +28,7 @@
       </article>
 
       <article class="faccion faccion-image">
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/marine.png" alt="Space Marines">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/marine.png" alt="Space Marines" loading="lazy">
         <div class="faccion-overlay">
           <h3>Space Marines</h3>
           <p>Los Space Marines son soldados de élite creados mediante bioingeniería, genética avanzada y un riguroso adoctrinamiento mental. No son humanos normales:
@@ -37,7 +37,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
       </article>
 
       <article class="faccion faccion-image">
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/adeptus.webp" alt="Adeptus Mechanicus">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/adeptus.webp" alt="Adeptus Mechanicus"   loading="lazy">
         <div class="faccion-overlay">
           <h3>Adeptus Mechanicus</h3>
           <p>El Adeptus Mechanicus es la organización encargada de la tecnología, máquinas y producción industrial del Imperio. 
@@ -46,7 +46,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
       </article>
 
       <article class="faccion faccion-image">
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/inqui.jpg" alt="Inquisición">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/inqui.jpg" alt="Inquisición" loading="lazy">
         <div class="faccion-overlay">
           <h3>La Inquisición</h3>
           <p>La Inquisición es una organización secreta del Imperio del Hombre encargada de buscar y eliminar la herejía, la corrupción y las amenazas al Imperio. Sus agentes, los Inquisidores, poseen autoridad casi absoluta y actúan sin limitaciones para proteger al Imperio de sus enemigos internos.</p>
@@ -54,7 +54,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
       </article>
 
       <article class="faccion faccion-image">
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/monga.png" alt="Adeptus Sororitas">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/monga.png" alt="Adeptus Sororitas" loading="lazy">
         <div class="faccion-overlay">
           <h3>Adeptus Sororitas</h3>
           <p>El Adeptus Sororitas, también conocido como las Hermanas de Batalla, es una orden militar religiosa femenina dedicada a defender la fe del Imperio. Armadas con tecnología avanzada y entrenadas en combate espiritual, estas guerreras implacables luchan contra los enemigos del Emperador con fanática devoción.</p>
@@ -62,7 +62,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
       </article>
 
       <article class="faccion faccion-image">
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/oficio.webp" alt="Officio Assassinorum">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/oficio.webp" alt="Officio Assassinorum" loading="lazy">
         <div class="faccion-overlay">
           <h3>Officio Assassinorum</h3>
           <p>El Officio Assassinorum es la rama de asesinos más letal del Imperio. Entrenados en el sigilo, la eliminación y técnicas mortales, estos asesinos operan en las sombras para eliminar amenazas políticas, enemigas y traidoras. Su existencia es denegada oficialmente por el Imperio.</p>
@@ -80,7 +80,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
       <div class="caos-carrusel">
 
         <div class="caos-card" onclick="abrirPanel('marines')">
-          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/marines-caos.jpg" alt="Marines del Caos">
+          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/marines-caos.jpg" alt="Marines del Caos" loading="lazy">
           <div class="caos-card-content">
             <h3>Marines del Caos</h3>
             <button class="caos-card-btn" onclick="abrirPanelCaos(event)"aria-expanded="false" >+</button>
@@ -93,9 +93,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
         </div>
 
         <div class="caos-card" onclick="abrirPanel('demonios')">
-        <img 
-          src="<?php echo get_template_directory_uri(); ?>/assets/img/demonios.png" 
-          alt="Demonios del Caos">
+        <img src="<?php echo get_template_directory_uri(); ?>/assets/img/demonios.png" alt="Demonios del Caos" loading="lazy">
         <div class="caos-card-content">
           <h3>Demonios del Caos</h3>
           <button class="caos-card-btn" onclick="abrirPanelCaos(event)"aria-expanded="false">+</button>
@@ -111,7 +109,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
 
 
         <div class="caos-card" onclick="abrirPanel('death')">
-          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/death.jpg" alt="Death Guard">
+          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/death.jpg" alt="Death Guard" loading="lazy">
           <div class="caos-card-content">
             <h3>Death Guard</h3>
             <button class="caos-card-btn" onclick="abrirPanelCaos(event)"aria-expanded="false">+</button>
@@ -124,7 +122,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
         </div>
 
         <div class="caos-card" onclick="abrirPanel('mil')">
-          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/mil-hijos.webp" alt="Mil Hijos">
+          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/mil-hijos.webp" alt="Mil Hijos" loading="lazy">
           <div class="caos-card-content">
             <h3>Mil Hijos</h3>
             <button class="caos-card-btn" onclick="abrirPanelCaos(event)"aria-expanded="false" >+</button>
@@ -137,7 +135,7 @@ son más grandes, más fuertes, más resistentes y están mejor entrenados que c
         </div>
 
         <div class="caos-card" onclick="abrirPanel('caballeros')">
-          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/caballeros.webp" alt="Caballeros del Caos">
+          <img src="<?php echo get_template_directory_uri(); ?>/assets/img/caballeros.webp" alt="Caballeros del Caos" loading="lazy">
           <div class="caos-card-content">
             <h3>Caballeros del Caos</h3>
             <button class="caos-card-btn" onclick="abrirPanelCaos(event)"aria-expanded="false" >+</button>
