@@ -294,3 +294,80 @@ header,
   position:relative;
   z-index:10;
 }
+
+@media (max-width: 1366px) {
+  :root {
+    --container-max: 1000px;
+  }
+
+  html, body {
+    font-size: 16px;
+  }
+
+  .hero {
+    height: 90vh;
+    background-attachment: scroll;
+  }
+
+  .hero .caption,
+  .hero-intro h1 {
+    font-size: 2.2rem;
+    padding: 18px 28px;
+  }
+
+  .lore-figure {
+    max-width: 100%;
+    aspect-ratio: 16/9;
+    max-height: 440px;
+  }
+
+  .lore-content,
+  .lore-header,
+  .lore-quote,
+  .lore-toc {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .lore-section {
+    padding: 14px;
+  }
+
+  .lore-item {
+    padding: 10px;
+  }
+
+  .lore-index li a {
+    padding: 6px 10px;
+    font-size: 0.95rem;
+  }
+
+  p { font-size: 18px; }
+}
+
+@media (max-width: 1280px) {
+  .hero {
+    height: 80vh;
+  }
+
+  .hero .caption,
+  .hero-intro h1 {
+    font-size: 2rem;
+    padding: 14px 20px;
+  }
+
+  .lore-figure {
+    max-height: 380px;
+  }
+
+  .lore-item h3 { font-size: 1rem; }
+  p { font-size: 17px; }
+}
+
+@media (max-width: 1024px) {
+  .lore-index { gap: 8px; }
+  .lore-index li a { padding: 6px 8px; }
+  .lore-figure { aspect-ratio: 4/3; }
+  .hero { height: 70vh; }
+}
+
